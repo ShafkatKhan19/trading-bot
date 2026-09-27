@@ -44,6 +44,7 @@ def floor_qty(qty: float) -> float:
     return int(qty * 10_000) / 10_000
 BOOK_DIR = os.path.join("data", "books")
 EQUITY_LOG = os.path.join(BOOK_DIR, "equity_log.csv")
+FILLS_LOG  = os.path.join(BOOK_DIR, "fills.csv")
 
 os.makedirs("logs", exist_ok=True)
 logging.basicConfig(
@@ -125,17 +126,36 @@ def buy(client, book, sym, dollars, reason) -> bool:
     # would otherwise leave the broker holding shares the ledger doesn't know
     # about, and the retry one minute later would buy them again.
     save_book(book)
+    log_fill(book["name"], sym, "BUY", fqty, price, fill, order)
     logger.info(f"[{book['name']}] BUY {sym} x{fqty} @ ${fill:.2f} (${fill * fqty:.2f}) — {reason}")
     return True
 
 
+def log_fill(book_name, sym, side, qty, intended, fill, order):
+    """
+    Intended (quote mid just before the order) vs actual fill, in bps, signed
+    so positive = cost. Replaces the assumed per-side cost in the backtests
+    with measured slippage once enough fills accumulate.
+    """
+    real = getattr(order, "filled_avg_price", None) is not None     # False = no broker fill price
+    cost_bps = ((fill - intended) if side == "BUY" else (intended - fill)) / intended * 1e4
+    row = {"time": datetime.now(ET).isoformat(timespec="seconds"), "book": book_name,
+           "symbol": sym, "side": side, "qty": qty, "intended": round(intended, 4),
+           "fill": round(fill, 4), "cost_bps": round(cost_bps, 2), "broker_fill": real}
+    new = not os.path.exists(FILLS_LOG)
+    pd.DataFrame([row]).to_csv(FILLS_LOG, mode="a", header=new, index=False)
+
+
 def sell(client, book, sym, reason) -> bool:
     pos = book["positions"][sym]
+    intended = client.get_latest_price(sym)
     order = client.submit_market_sell(sym, pos["qty"])
     if not order:
         logger.error(f"[{book['name']}] SELL {sym} x{pos['qty']} failed — kept in ledger, retry next run")
         return False
-    fill = float(order.filled_avg_price or client.get_latest_price(sym))
+    fill = float(order.filled_avg_price or intended or client.get_latest_price(sym))
+    if intended:
+        log_fill(book["name"], sym, "SELL", pos["qty"], intended, fill, order)
     tl.log_trade_exit(pos["trade_id"], fill, reason)
     book["cash"] += fill * pos["qty"]
     logger.info(f"[{book['name']}] SELL {sym} x{pos['qty']} @ ${fill:.2f} "

@@ -9,7 +9,7 @@ Six strategies will have been tested (H1-H6). The out-of-sample t-stat bar
 rises from 2.4 to **2.64** (two-sided p < 0.05/6, Bonferroni).
 
 ## Universe for event strategies (H4, H5)
-**L** = 86 US large caps that were already large in 2016 and still trade
+**L** = 87 US large caps that were already large in 2016 and still trade
 under the same ticker (ticker changes like FB→META excluded to avoid data
 splicing): AAPL MSFT AMZN GOOGL JNJ JPM XOM PG V MA HD CVX PFE KO PEP MRK
 ABBV BAC WMT DIS CSCO INTC VZ T ORCL CMCSA NFLX ADBE CRM NKE MCD MDT UNH ABT

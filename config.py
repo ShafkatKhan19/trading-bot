@@ -62,13 +62,18 @@ CUMULATIVE_KILL_SWITCH_PCT = float(os.getenv("CUMULATIVE_KILL_SWITCH_PCT", 40)) 
 # that $50 positions could never reach. With the cap, paper trades exactly
 # as the real account would. In live mode with a real $500 account, equity is
 # already below the cap, so behaviour is unchanged.
-ACCOUNT_CAPITAL = float(os.getenv("ACCOUNT_CAPITAL", 500))
+# Raised $500 -> $2,000 on 2026-09-27 at the user's request.
+ACCOUNT_CAPITAL = float(os.getenv("ACCOUNT_CAPITAL", 2000))
 
 # Alpaca: margin (and therefore short selling) requires $2,000 of equity.
 # Below that the account is a cash account — long-only, and sale proceeds
 # only become usable after T+1 settlement.
+# At exactly $2,000 the account sits ON the threshold — one losing trade
+# drops it below — so it is treated as a cash account unless ACCOUNT_TYPE is
+# explicitly set to "margin" (and the broker account is actually margin).
 MARGIN_MIN_EQUITY = 2_000
-CASH_ACCOUNT      = ACCOUNT_CAPITAL < MARGIN_MIN_EQUITY
+ACCOUNT_TYPE      = os.getenv("ACCOUNT_TYPE", "cash")
+CASH_ACCOUNT      = ACCOUNT_TYPE != "margin" or ACCOUNT_CAPITAL < MARGIN_MIN_EQUITY
 
 # Model T+1 settlement in paper: in a cash account, each session's total
 # entry notional is capped at the settled cash available at the open, and
@@ -86,7 +91,7 @@ DAILY_BOOKS           = ["index", "h1"]
 DAILY_RUN_TIME        = "09:35"    # ET, once per session, after the open
 INDEX_SYMBOL          = "SPY"
 INDEX_MONTHLY_DEPOSIT = float(os.getenv("INDEX_MONTHLY_DEPOSIT", 0))
-H1_PAPER_CAPITAL      = 500.0
+H1_PAPER_CAPITAL      = ACCOUNT_CAPITAL   # same scale as the index book it is compared to
 
 # ── Watchlist ─────────────────────────────────────────────────
 # VRT (17.5% win rate) and AVGO (26.3% win rate) removed earlier — consistent
