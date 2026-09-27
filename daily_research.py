@@ -125,10 +125,32 @@ def run_monthly(opens, closes, choose, cost):
     return pd.Series(eq, index=days[start:])
 
 
+H1_MAX_POSITIONS = 5
+H1_POSITION_PCT  = 0.20
+H1_MAX_HOLD_DAYS = 10
+
+
+def h1_indicators(closes: pd.DataFrame):
+    """(sma200, sma5, rsi2) frames — shared by the backtest and daily_runner.py."""
+    return (closes.rolling(200).mean(), closes.rolling(5).mean(),
+            closes.apply(lambda c: rsi_wilder(c, 2)))
+
+
+def h1_decide(c, sma200, sma5, rsi2, held_days: dict) -> tuple[list, list]:
+    """
+    Pre-registered H1 rules for ONE decision close. All inputs are that day's
+    rows (Series indexed by symbol). held_days: symbol -> trading days held
+    counting the entry day as 1. Returns (sells, buys) to fill at next open.
+    """
+    sells = [s for s, d in held_days.items() if c[s] > sma5[s] or d >= H1_MAX_HOLD_DAYS]
+    free = H1_MAX_POSITIONS - (len(held_days) - len(sells))
+    cands = [(rsi2[s], s) for s in UNIVERSE
+             if s not in held_days and c[s] > sma200[s] and rsi2[s] < 10]
+    return sells, [s for _, s in sorted(cands)[:max(0, free)]]
+
+
 def run_h1(opens, closes, cost):
-    sma200 = closes.rolling(200).mean()
-    sma5   = closes.rolling(5).mean()
-    rsi2   = closes.apply(lambda c: rsi_wilder(c, 2))
+    sma200, sma5, rsi2 = h1_indicators(closes)
     days = closes.index
     start = days.searchsorted(pd.Timestamp(EVAL_START))
     b, eq, trades = Book(500.0, cost), [], []
@@ -143,18 +165,14 @@ def run_h1(opens, closes, cost):
             trades.append(dict(symbol=s, entry=days[e_i], exit=days[i], days=i - e_i,
                                net=(o[s] * (1 - cost)) / (e_px * (1 + cost)) - 1))
         for s in buys:
-            q = min(0.20 * prev_eq, max(0.0, b.cash) / (1 + cost)) / o[s]
+            q = min(H1_POSITION_PCT * prev_eq, max(0.0, b.cash) / (1 + cost)) / o[s]
             if q > 0:
                 b.trade(s, q, o[s])
                 held[s] = (i, o[s], q)
         eq.append(b.value(c))
         # decisions at today's close for tomorrow's open
-        sells = [s for s, (e_i, _, _) in held.items()
-                 if c[s] > sma5[s].iloc[i] or (i - e_i + 1) >= 10]
-        free = 5 - (len(held) - len(sells))
-        cands = [(rsi2[s].iloc[i], s) for s in UNIVERSE
-                 if s not in held and c[s] > sma200[s].iloc[i] and rsi2[s].iloc[i] < 10]
-        buys = [s for _, s in sorted(cands)[:max(0, free)]]
+        sells, buys = h1_decide(c, sma200.iloc[i], sma5.iloc[i], rsi2.iloc[i],
+                                {s: i - e_i + 1 for s, (e_i, _, _) in held.items()})
     return pd.Series(eq, index=days[start:]), pd.DataFrame(trades)
 
 

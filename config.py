@@ -77,6 +77,17 @@ CASH_ACCOUNT      = ACCOUNT_CAPITAL < MARGIN_MIN_EQUITY
 # the same dollars all day and overstate how many trades the real account takes.
 ENFORCE_T1_SETTLEMENT = CASH_ACCOUNT
 
+# ── Daily runner (daily_runner.py — the bot since 2026-09-27) ─
+# "index": buy-and-hold INDEX_SYMBOL with ACCOUNT_CAPITAL (+ optional
+#          monthly deposit). The best-evidenced use of the money.
+# "h1":    paper-only forward test of the pre-registered RSI(2) rules with
+#          H1_PAPER_CAPITAL; skipped automatically in live mode.
+DAILY_BOOKS           = ["index", "h1"]
+DAILY_RUN_TIME        = "09:35"    # ET, once per session, after the open
+INDEX_SYMBOL          = "SPY"
+INDEX_MONTHLY_DEPOSIT = float(os.getenv("INDEX_MONTHLY_DEPOSIT", 0))
+H1_PAPER_CAPITAL      = 500.0
+
 # ── Watchlist ─────────────────────────────────────────────────
 # VRT (17.5% win rate) and AVGO (26.3% win rate) removed earlier — consistent
 # losses across all signal score levels. MARA (-$13.52/33 trades, 39.4% win)

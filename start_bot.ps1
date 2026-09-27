@@ -16,11 +16,15 @@ function Test-ScriptRunning($scriptName) {
     return $procs.Count -gt 0
 }
 
+# 2026-09-27: the intraday paper_runner.py was retired after failing its
+# out-of-sample test; daily_runner.py (SPY index book + paper RSI(2) forward
+# test) replaces it. See RESULTS_2026-09-27_daily.md.
 while ($true) {
-    if (-not (Test-ScriptRunning "paper_runner.py")) {
-        Start-Process -FilePath $pythonExe -ArgumentList "paper_runner.py" -WindowStyle Hidden `
-            -RedirectStandardOutput (Join-Path $PSScriptRoot "logs\paper_runner_stdout.log") `
-            -RedirectStandardError  (Join-Path $PSScriptRoot "logs\paper_runner_stderr.log")
+    if (-not (Test-ScriptRunning "daily_runner.py")) {
+        # Via cmd so output APPENDS — Start-Process redirection truncates the file on
+        # every relaunch, which would erase the traceback of the crash that caused it.
+        Start-Process -FilePath "cmd.exe" -WindowStyle Hidden -ArgumentList `
+            "/c `"`"$pythonExe`" daily_runner.py >> `"$PSScriptRoot\logs\daily_runner_console.log`" 2>&1`""
     }
 
     if (-not (Test-ScriptRunning "web_dashboard.py")) {
