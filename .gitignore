@@ -6,3 +6,8 @@ __pycache__/
 venv/
 .venv/
 constitution.json
+# Regenerable caches/outputs (python intraday_data.py / intraday_backtest.py)
+data/intraday/
+data/intraday_trades.csv
+data/earnings_dates.json
+*.db.backup-*

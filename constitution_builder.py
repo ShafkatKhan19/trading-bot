@@ -18,8 +18,13 @@ CONSTITUTION_FILE = "constitution.json"
 MIN_TRADES        = 100
 
 
-def fetch_trades():
-    conn = sqlite3.connect("trades.db")
+def fetch_trades(db_path: str = "trades.db", until: str | None = None):
+    """
+    until: fit only on trades entered BEFORE this date (YYYY-MM-DD) — the
+    in-sample cut from validation.py. Everything on/after it is out-of-sample
+    and must never feed the rules it is later used to judge.
+    """
+    conn = sqlite3.connect(db_path)
     c    = conn.cursor()
     c.execute("""
         SELECT symbol, pnl_pct, rsi_at_entry, signal_score,
@@ -27,7 +32,9 @@ def fetch_trades():
                entry_price, exit_price
         FROM trades
         WHERE exit_date IS NOT NULL AND mode IN ('paper', 'backtest')
-    """)
+          AND (? IS NULL OR entry_date < ?)
+        ORDER BY entry_date, id
+    """, (until, until))
     rows = c.fetchall()
     conn.close()
     return rows
@@ -71,6 +78,7 @@ def analyse_by_segment(rows):
     seg_stats = defaultdict(lambda: {
         "wins": 0, "total": 0, "pnls": [],
         "rsi_at_entry": [], "signal_scores": [], "hold_days": [],
+        "score_outcomes": [],
     })
 
     for sym, pnl_pct, rsi, score, news, regime, hold, reason, ep, xp in rows:
@@ -84,6 +92,9 @@ def analyse_by_segment(rows):
             s["rsi_at_entry"].append(rsi)
         if score is not None:
             s["signal_scores"].append(score)
+            # Keep score paired with its own outcome — derive_segment_rules
+            # needs per-score win rates, which a flat list of scores can't give.
+            s["score_outcomes"].append((score, (pnl_pct or 0) > 0))
         if hold is not None:
             s["hold_days"].append(hold)
 
@@ -105,14 +116,38 @@ def derive_segment_rules(seg_stats: dict) -> dict:
         avg_pnl  = sum(pnls) / len(pnls) if pnls else 0
 
         # --- signal score: find the threshold with the best win rate ---
+        # Rebuild wins/totals per score from this segment's own trades, then
+        # score each candidate threshold T by the win rate of the trades it
+        # would still have admitted (score >= T).
         score_wins  = defaultdict(int)
         score_total = defaultdict(int)
-        for sc in s["signal_scores"]:
+        for sc, won in s["score_outcomes"]:
             score_total[sc] += 1
+            if won:
+                score_wins[sc] += 1
 
-        # rebuild wins per score from the trades belonging to this segment
+        # A threshold must clear 20 admitted trades before its win rate is
+        # trusted — same small-sample guard used for rsi_floor and best_hold
+        # below. Candidates are also floored at the config default so a noisy
+        # backtest can only ever TIGHTEN entry quality, never loosen it
+        # (mirrors how rsi_floor uses max(default, derived)).
         best_score    = default["min_signal_score"]
-        best_score_wr = 0
+        best_score_wr = None
+        for threshold in sorted(score_total):
+            if threshold < default["min_signal_score"]:
+                continue
+            admitted = [sc for sc in score_total if sc >= threshold]
+            n_at = sum(score_total[sc] for sc in admitted)
+            if n_at < 20:
+                continue
+            wr_at = sum(score_wins[sc] for sc in admitted) / n_at
+            if best_score_wr is None or wr_at > best_score_wr:
+                best_score_wr, best_score = wr_at, threshold
+
+        # best_score_wr is None => every candidate bucket was too thin to
+        # trust, so the config default stands. Recorded explicitly so
+        # constitution.json shows whether the threshold was derived or defaulted.
+        score_derived = best_score_wr is not None
 
         # --- RSI floor: losses tend to cluster at low RSI entries ---
         rsi_list = s["rsi_at_entry"]
@@ -138,6 +173,8 @@ def derive_segment_rules(seg_stats: dict) -> dict:
             "take_profit_pct":  default["take_profit_pct"],
             "max_hold_days":    int(best_hold),
             "min_signal_score": best_score,
+            "min_signal_score_source": "derived" if score_derived else "config_default",
+            "min_signal_score_win_rate": round(best_score_wr, 3) if score_derived else None,
             "rsi_min_entry":    int(rsi_floor),
             "volume_surge_mult":default["volume_surge_mult"],
         }
@@ -237,6 +274,120 @@ def analyse_loss_patterns(rows):
     return lessons
 
 
+# ── Goodhart's Law warning (Ch.20) ───────────────────────────
+# "When a measure becomes a target, it ceases to be a good measure."
+# If the bot is mainly winning by holding until time-exit, it may be
+# optimizing for patience rather than signal quality.
+
+def check_goodharts_law(exit_stats: dict, win_rate: float) -> dict:
+    """
+    If >60% of winning trades exit via time_exit, warn that the bot is
+    winning by waiting, not by reading momentum correctly.
+    This is Goodhart's Law in action: max_hold_days became a target.
+    """
+    time_wins  = exit_stats.get("time_exit", {}).get("wins",  0)
+    total_wins = sum(s["wins"] for s in exit_stats.values())
+
+    if total_wins == 0:
+        return {"goodharts_warning": False}
+
+    time_win_pct = time_wins / total_wins
+    warning      = time_win_pct > 0.60
+
+    result = {
+        "goodharts_warning":        warning,
+        "pct_wins_via_time_exit":   round(time_win_pct, 3),
+    }
+
+    if warning:
+        result["message"] = (
+            f"{time_win_pct:.0%} of wins came from time_exit — "
+            "the bot is winning by outlasting, not by momentum quality. "
+            "Consider reducing max_hold_days or raising min_signal_score "
+            "to force sharper entries that reach target faster."
+        )
+    return result
+
+
+# ── Trajectory analysis (Ch.1) ────────────────────────────────
+# "You should be far more concerned with your current trajectory
+#  than your current results."
+
+def analyse_trajectory(rows) -> dict:
+    """
+    Split trades in half chronologically. If the second half win rate is
+    meaningfully lower than the first half, the strategy is drifting.
+    """
+    completed = [r for r in rows if r[1] is not None]
+    if len(completed) < 40:
+        return {"insufficient_data": True}
+
+    mid        = len(completed) // 2
+    first_half = completed[:mid]
+    second_half= completed[mid:]
+
+    def win_rate(rs):
+        wins = sum(1 for r in rs if (r[1] or 0) > 0)
+        return round(wins / len(rs), 4) if rs else 0
+
+    first_wr  = win_rate(first_half)
+    second_wr = win_rate(second_half)
+    delta     = second_wr - first_wr
+
+    trend = "IMPROVING" if delta > 0.05 else ("STABLE" if abs(delta) <= 0.05 else "DECLINING")
+
+    result = {
+        "first_half_win_rate":  first_wr,
+        "second_half_win_rate": second_wr,
+        "delta":                round(delta, 4),
+        "trend":                trend,
+    }
+
+    if trend == "DECLINING":
+        result["message"] = (
+            f"Win rate dropped from {first_wr:.1%} (first half) to "
+            f"{second_wr:.1%} (second half) — strategy is deteriorating. "
+            "Rebuild constitution with fresher data or tighten entry rules."
+        )
+
+    return result
+
+
+# ── Consecutive loss analysis (Ch.16) ─────────────────────────
+# Which tickers have a losing streak that should trigger a pause?
+
+def analyse_streaks(rows) -> dict:
+    """
+    For each ticker, count trailing consecutive losses.
+    Tickers above MAX_CONSECUTIVE_LOSSES should be flagged.
+    """
+    from collections import defaultdict
+
+    # Group by symbol, in order of (entry_date, id — position in rows)
+    ticker_trades = defaultdict(list)
+    for sym, pnl_pct, *_ in rows:
+        ticker_trades[sym].append(pnl_pct or 0)
+
+    streaks = {}
+    paused  = []
+    for sym, pnls in ticker_trades.items():
+        streak = 0
+        for pnl in reversed(pnls):
+            if pnl <= 0:
+                streak += 1
+            else:
+                break
+        streaks[sym] = streak
+        if streak >= config.MAX_CONSECUTIVE_LOSSES:
+            paused.append(sym)
+
+    return {
+        "consecutive_losses_by_ticker": streaks,
+        "tickers_currently_paused":     paused,
+        "pause_threshold":              config.MAX_CONSECUTIVE_LOSSES,
+    }
+
+
 # ── Parameter derivation ──────────────────────────────────────
 
 def derive_stop_loss(rows):
@@ -276,10 +427,56 @@ def derive_best_hold(rows):
     return best_hold
 
 
+# ── Best Loser Wins: Win/Loss Asymmetry Check (Tom Hougaard) ──
+# The 43-million-trade study: 61% win rate but traders still lost money.
+# Why? Average loss (-83 pips) was nearly twice the average win (+43 pips).
+# A bot with a 60% win rate still loses money if avg_loss > avg_win.
+# This check flags that scenario immediately.
+
+def check_win_loss_asymmetry(rows) -> dict:
+    """
+    Flag if average loss magnitude exceeds average win.
+    Hougaard's core finding: win rate means nothing if your losses
+    dwarf your wins. The bot must let winners run beyond avg_loss size.
+    """
+    wins   = [(pnl_pct or 0) for _, pnl_pct, *_ in rows if (pnl_pct or 0) > 0]
+    losses = [abs(pnl_pct or 0) for _, pnl_pct, *_ in rows if (pnl_pct or 0) <= 0]
+
+    if not wins or not losses:
+        return {"asymmetry_warning": False}
+
+    avg_win  = sum(wins)  / len(wins)
+    avg_loss = sum(losses) / len(losses)
+    ratio    = avg_loss / avg_win if avg_win > 0 else float("inf")
+    warning  = ratio > 1.0  # bad: avg loss > avg win
+
+    result = {
+        "asymmetry_warning":  warning,
+        "avg_win_pct":        round(avg_win * 100,  2),
+        "avg_loss_pct":       round(avg_loss * 100, 2),
+        "loss_to_win_ratio":  round(ratio, 3),
+    }
+    if warning:
+        result["message"] = (
+            f"CRITICAL: avg loss ({avg_loss:.1%}) > avg win ({avg_win:.1%}). "
+            f"Ratio = {ratio:.2f}x. Even with a 60%% win rate, this is a losing system. "
+            "Trailing stops must run winners further than losses are cut. "
+            "Ref: Hougaard Ch.3 — 43M trade study."
+        )
+    else:
+        result["message"] = (
+            f"Win/loss size healthy: avg win {avg_win:.1%} > avg loss {avg_loss:.1%} "
+            f"(ratio {ratio:.2f}x — losses are smaller than wins)"
+        )
+    return result
+
+
 # ── Main builder ──────────────────────────────────────────────
 
-def build_constitution():
-    rows  = fetch_trades()
+def build_constitution(db_path: str = "trades.db", until: str | None = None):
+    rows  = fetch_trades(db_path, until)
+    print(f"Fitting on {db_path}" + (f", trades before {until} only" if until else
+          " — ALL trades (no out-of-sample holdout; prefer --until)"))
     total = len(rows)
 
     if total < MIN_TRADES:
@@ -296,6 +493,10 @@ def build_constitution():
     seg_stats    = analyse_by_segment(rows)
     seg_rules    = derive_segment_rules(seg_stats)
     lessons      = analyse_loss_patterns(rows)
+    goodharts    = check_goodharts_law(exit_stats, 0)  # win_rate computed below
+    trajectory   = analyse_trajectory(rows)
+    streaks      = analyse_streaks(rows)
+    asymmetry    = check_win_loss_asymmetry(rows)
 
     # ── Signal score breakdown ────────────────────────────────
     print("Signal Score Breakdown:")
@@ -333,6 +534,29 @@ def build_constitution():
     for lesson in lessons["lessons"]:
         print(f"  • {lesson}")
 
+    # ── Goodhart's Law warning (Ch.20) ────────────────────────
+    if goodharts.get("goodharts_warning"):
+        print(f"\n[GOODHART WARNING] {goodharts['message']}")
+
+    # ── Trajectory check (Ch.1) ───────────────────────────────
+    if not trajectory.get("insufficient_data"):
+        first  = trajectory["first_half_win_rate"]
+        second = trajectory["second_half_win_rate"]
+        trend  = trajectory["trend"]
+        print(f"\nTrajectory: {first:.1%} (first half) -> {second:.1%} (second half) [{trend}]")
+        if trajectory.get("message"):
+            print(f"  WARNING: {trajectory['message']}")
+
+    # ── Streak summary (Ch.16) ────────────────────────────────
+    if streaks["tickers_currently_paused"]:
+        print(f"\nPaused tickers (>={config.MAX_CONSECUTIVE_LOSSES} consecutive losses): "
+              f"{', '.join(streaks['tickers_currently_paused'])}")
+
+    # ── Best Loser Wins: Win/Loss Asymmetry (Tom Hougaard, Ch.3) ─
+    print(f"\nWin/Loss Asymmetry: {asymmetry['message']}")
+    if asymmetry.get("asymmetry_warning"):
+        print("  [CRITICAL] Trailing stops are not running winners far enough.")
+
     # ── Overall stats ─────────────────────────────────────────
     wins     = sum(1 for r in rows if (r[1] or 0) > 0)
     win_rate = wins / total
@@ -361,20 +585,32 @@ def build_constitution():
         te = exit_stats["time_exit"]
         time_exit_wr = te["wins"] / te["total"]
 
-    strategy_viable = (
-        win_rate >= config.MIN_WIN_RATE
-        or time_exit_wr >= config.MIN_WIN_RATE
-    )
+    # Trailing-stop viability: use EXPECTANCY not raw win rate.
+    # Win rate alone is misleading when winners are much larger than losers.
+    # Expectancy = (win_rate × avg_win) - (loss_rate × avg_loss)
+    # Minimum viable: +0.5% per trade expectancy AND positive total PnL.
+    wins_data   = [r[1] for r in rows if (r[1] or 0) > 0]
+    losses_data = [abs(r[1] or 0) for r in rows if (r[1] or 0) <= 0]
+    avg_win_e   = sum(wins_data)  / len(wins_data)  if wins_data  else 0
+    avg_loss_e  = sum(losses_data)/ len(losses_data) if losses_data else 0
+    expectancy  = (win_rate * avg_win_e) - ((1 - win_rate) * avg_loss_e)
+    MIN_EXPECTANCY = 0.005  # 0.5% per trade
+
+    print(f"\nExpectancy per trade: {expectancy:.3%}  "
+          f"(win {win_rate:.1%} x {avg_win_e:.2%}) - "
+          f"(loss {1-win_rate:.1%} x {avg_loss_e:.2%})")
+
+    strategy_viable = expectancy >= MIN_EXPECTANCY and avg_pnl > 0
 
     if not strategy_viable:
-        print(f"\nWARNING: Both overall win rate {win_rate:.1%} and time-exit win rate "
-              f"{time_exit_wr:.1%} are below {config.MIN_WIN_RATE:.0%}.")
+        print(f"\nWARNING: Expectancy {expectancy:.3%} below {MIN_EXPECTANCY:.1%} minimum "
+              f"or total PnL is negative.")
         print("Strategy not ready for live. Re-run paper_runner.py after tuning parameters.")
         return False
 
     if win_rate < config.MIN_WIN_RATE:
         print(f"\nNOTE: Overall win rate {win_rate:.1%} below {config.MIN_WIN_RATE:.0%}, "
-              f"but time-exit win rate is {time_exit_wr:.1%}.")
+              f"but expectancy is {expectancy:.3%} — viable for trailing-stop strategy.")
 
     # ── Write constitution ─────────────────────────────────────
     constitution = {
@@ -388,7 +624,8 @@ def build_constitution():
         "rules": {
             "min_signal_score":       best_score,
             "stop_loss_pct":          best_stop,
-            "take_profit_pct":        config.TAKE_PROFIT_PCT,
+            "trail_activation_pct":   config.TRAIL_ACTIVATION_PCT,
+            "trail_stop_pct":         config.TRAIL_STOP_PCT,
             "max_hold_days":          best_hold,
             "min_hold_days":          config.MIN_HOLD_DAYS,
             "max_open_positions":     config.MAX_OPEN_POSITIONS,
@@ -406,6 +643,14 @@ def build_constitution():
         "segment_rules": seg_rules,
         # What the bot learned from its wins and losses
         "lessons": lessons,
+        # Goodhart's Law: are wins coming from outlasting rather than momentum?
+        "goodharts_analysis": goodharts,
+        # Trajectory: first-half vs second-half win rate — is strategy improving or drifting?
+        "trajectory": trajectory,
+        # Atomic Habits Ch.16: which tickers are on a losing streak right now?
+        "streak_summary": streaks,
+        # Best Loser Wins (Hougaard Ch.3): avg win vs avg loss size check
+        "win_loss_asymmetry": asymmetry,
     }
 
     constitution_str = json.dumps(constitution, indent=2, sort_keys=True)
@@ -421,10 +666,16 @@ def build_constitution():
     print(f"  Segment rules saved for: {', '.join(seg_rules.keys())}")
     print(f"{'='*60}")
     print("\nNext step: re-run paper_runner.py with new parameters.")
-    print("When win rate >= 55%, switch .env to TRADING_MODE=live")
+    print("Go live only when validation.py returns PASS out-of-sample AND golive_gate")
+    print("passes on the paper record — a win rate on its own says nothing about edge.")
     return True
 
 
 if __name__ == "__main__":
-    ok = build_constitution()
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--db", default="trades.db")
+    ap.add_argument("--until", help="fit only on trades entered before YYYY-MM-DD")
+    a = ap.parse_args()
+    ok = build_constitution(a.db, a.until)
     sys.exit(0 if ok else 1)

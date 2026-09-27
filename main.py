@@ -8,6 +8,10 @@ import logging
 import time
 import schedule
 from datetime import datetime
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:
+    from backports.zoneinfo import ZoneInfo
 import config
 import trade_logger as tl
 from alpaca_client import AlpacaClient
@@ -21,18 +25,22 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler("logs/live_trading.log")
+        logging.FileHandler("logs/live_trading.log", encoding="utf-8")
     ]
 )
 logger = logging.getLogger(__name__)
 
 
+ET = ZoneInfo("America/New_York")
+
+
 def is_market_open() -> bool:
-    now = datetime.now()
+    """Market hours check in US Eastern Time, regardless of server timezone."""
+    now = datetime.now(ET)
     if now.weekday() >= 5:
         return False
-    market_open  = now.replace(hour=9, minute=30, second=0)
-    market_close = now.replace(hour=16, minute=0, second=0)
+    market_open  = now.replace(hour=9, minute=30, second=0, microsecond=0)
+    market_close = now.replace(hour=16, minute=0, second=0, microsecond=0)
     return market_open <= now <= market_close
 
 
@@ -54,6 +62,9 @@ def run_cycle(client, strategy, kill_switch):
     )
 
     df_regime     = client.get_bars(config.REGIME_TICKER, timeframe="1Day", days=100)
+    # Previously never fetched here, so the live path ran with no VIX filter.
+    df_vix        = client.get_bars(config.VIX_TICKER, timeframe="1Day",
+                                    days=config.VIX_LOOKBACK_DAYS, split_adjusted=True)
     market_bullish = is_market_bullish(df_regime)
 
     strategy.evaluate_exits()
@@ -69,7 +80,7 @@ def run_cycle(client, strategy, kill_switch):
         df_trend  = client.get_bars(symbol, timeframe=config.TREND_TIMEFRAME, days=60)
         if df_signal is None or df_trend is None:
             continue
-        strategy.evaluate_entry(symbol, df_signal, df_trend, df_regime)
+        strategy.evaluate_entry(symbol, df_signal, df_trend, df_regime, df_vix)
         time.sleep(0.5)
 
 

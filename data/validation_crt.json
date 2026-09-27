@@ -1,0 +1,48 @@
+{
+  "strategy": "crt",
+  "cost_per_side": 0.001,
+  "oos_start": "2025-08-28",
+  "in_sample": {
+    "n": 485,
+    "sessions": 240,
+    "win_rate": 0.3319587628865979,
+    "mean_net_pct": -0.0018334213977854708,
+    "median_net_pct": -0.0037612207230143606,
+    "avg_win_pct": 0.009676401235553028,
+    "avg_loss_pct": -0.007552808570524663,
+    "t_stat": -3.8955003109466024,
+    "p_value": 1.0,
+    "total_net_usd": -37.13901485099784,
+    "max_drawdown": 0.07889716169599682,
+    "std_net_pct": 0.010365014682474463
+  },
+  "out_of_sample": {
+    "n": 228,
+    "sessions": 103,
+    "win_rate": 0.2675438596491228,
+    "mean_net_pct": -0.002556526142123234,
+    "median_net_pct": -0.0051986371670503465,
+    "avg_win_pct": 0.01218387241353663,
+    "avg_loss_pct": -0.00794074357862175,
+    "t_stat": -3.4337410925160112,
+    "p_value": 0.9996000199990001,
+    "total_net_usd": -17.441169029999227,
+    "max_drawdown": 0.041617004356905955,
+    "std_net_pct": 0.01124216915744755
+  },
+  "verdict": "FAIL",
+  "reasons": [
+    "mean net return -0.2557% <= 0",
+    "t-stat -3.43 < 2.0",
+    "p-value 1.000 > 0.05 (indistinguishable from luck)"
+  ],
+  "criteria": {
+    "oos_fraction": 0.3,
+    "min_oos_trades": 100,
+    "min_t_stat": 2.0,
+    "max_p_value": 0.05,
+    "max_drawdown_pct": 0.2,
+    "permutations": 20000,
+    "seed": 20260927
+  }
+}
