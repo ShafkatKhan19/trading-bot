@@ -12,3 +12,5 @@ data/intraday_trades.csv
 data/earnings_dates.json
 *.db.backup-*
 data/daily/
+data/quotes/
+data/robustness/trades_*.csv

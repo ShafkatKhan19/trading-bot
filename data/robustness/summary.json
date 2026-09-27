@@ -1,0 +1,467 @@
+{
+  "current": {
+    "last_session": "2026-04-24",
+    "crt": {
+      "gross_mean_pct": -6.471736579513096e-05,
+      "pre_registered": {
+        "strategy": "crt",
+        "cost_per_side": 0.001,
+        "oos_start": "2025-08-28",
+        "in_sample": {
+          "n": 485,
+          "sessions": 240,
+          "win_rate": 0.3319587628865979,
+          "mean_net_pct": -0.0018334213977854708,
+          "median_net_pct": -0.0037612207230143606,
+          "avg_win_pct": 0.009676401235553028,
+          "avg_loss_pct": -0.007552808570524663,
+          "t_stat": -3.8955003109466024,
+          "p_value": 1.0,
+          "total_net_usd": -37.13901485099784,
+          "max_drawdown": 0.07889716169599682,
+          "std_net_pct": 0.010365014682474463
+        },
+        "out_of_sample": {
+          "n": 228,
+          "sessions": 103,
+          "win_rate": 0.2675438596491228,
+          "mean_net_pct": -0.002556526142123234,
+          "median_net_pct": -0.0051986371670503465,
+          "avg_win_pct": 0.01218387241353663,
+          "avg_loss_pct": -0.00794074357862175,
+          "t_stat": -3.4337410925160112,
+          "p_value": 0.9996000199990001,
+          "total_net_usd": -17.441169029999227,
+          "max_drawdown": 0.041617004356905955,
+          "std_net_pct": 0.01124216915744755
+        },
+        "verdict": "FAIL",
+        "reasons": [
+          "mean net return -0.2557% <= 0",
+          "t-stat -3.43 < 2.0",
+          "p-value 1.000 > 0.05 (indistinguishable from luck)"
+        ],
+        "criteria": {
+          "oos_fraction": 0.3,
+          "min_oos_trades": 100,
+          "min_t_stat": 2.0,
+          "max_p_value": 0.05,
+          "max_drawdown_pct": 0.2,
+          "permutations": 20000,
+          "seed": 20260927
+        }
+      },
+      "spread_cost": {
+        "strategy": "crt",
+        "cost_per_side": 0.0001716127281702943,
+        "oos_start": "2025-08-28",
+        "in_sample": {
+          "n": 485,
+          "sessions": 240,
+          "win_rate": 0.35876288659793815,
+          "mean_net_pct": -0.00018832455661808303,
+          "median_net_pct": -0.0021654897132895876,
+          "avg_win_pct": 0.01059321997420229,
+          "avg_loss_pct": -0.00622044271855617,
+          "t_stat": -0.39872740758059183,
+          "p_value": 0.655917204139793,
+          "total_net_usd": -4.992566206014353,
+          "max_drawdown": 0.03153921191455772,
+          "std_net_pct": 0.010401637965663759
+        },
+        "out_of_sample": {
+          "n": 228,
+          "sessions": 103,
+          "win_rate": 0.2894736842105263,
+          "mean_net_pct": -0.0008747868169788985,
+          "median_net_pct": -0.0034067244908617678,
+          "avg_win_pct": 0.012917492182081837,
+          "avg_loss_pct": -0.006493863446225865,
+          "t_stat": -1.1735075220125324,
+          "p_value": 0.8813059347032648,
+          "total_net_usd": -5.531985108477312,
+          "max_drawdown": 0.023114688681304455,
+          "std_net_pct": 0.011255991990612306
+        },
+        "verdict": "FAIL",
+        "reasons": [
+          "mean net return -0.0875% <= 0",
+          "t-stat -1.17 < 2.0",
+          "p-value 0.881 > 0.05 (indistinguishable from luck)"
+        ],
+        "criteria": {
+          "oos_fraction": 0.3,
+          "min_oos_trades": 100,
+          "min_t_stat": 2.0,
+          "max_p_value": 0.05,
+          "max_drawdown_pct": 0.2,
+          "permutations": 20000,
+          "seed": 20260927
+        }
+      }
+    },
+    "swing": {
+      "gross_mean_pct": 0.00016493710284643974,
+      "pre_registered": {
+        "strategy": "swing",
+        "cost_per_side": 0.001,
+        "oos_start": "2025-07-25",
+        "in_sample": {
+          "n": 1745,
+          "sessions": 289,
+          "win_rate": 0.3123209169054441,
+          "mean_net_pct": -0.0016570363561503397,
+          "median_net_pct": -0.0024856587263003497,
+          "avg_win_pct": 0.010403160589993337,
+          "avg_loss_pct": -0.007134375802523927,
+          "t_stat": -5.349985958296606,
+          "p_value": 1.0,
+          "total_net_usd": -99.7461938049933,
+          "max_drawdown": 0.19949238760998675,
+          "std_net_pct": 0.012938296834257764
+        },
+        "out_of_sample": {
+          "n": 643,
+          "sessions": 125,
+          "win_rate": 0.29237947122861585,
+          "mean_net_pct": -0.002318811239069519,
+          "median_net_pct": -0.002421067989495045,
+          "avg_win_pct": 0.009739130056577837,
+          "avg_loss_pct": -0.007300993576611722,
+          "t_stat": -4.624652720906929,
+          "p_value": 1.0,
+          "total_net_usd": -44.571895573997956,
+          "max_drawdown": 0.09274735106205398,
+          "std_net_pct": 0.012714279586936142
+        },
+        "verdict": "FAIL",
+        "reasons": [
+          "mean net return -0.2319% <= 0",
+          "t-stat -4.62 < 2.0",
+          "p-value 1.000 > 0.05 (indistinguishable from luck)"
+        ],
+        "criteria": {
+          "oos_fraction": 0.3,
+          "min_oos_trades": 100,
+          "min_t_stat": 2.0,
+          "max_p_value": 0.05,
+          "max_drawdown_pct": 0.2,
+          "permutations": 20000,
+          "seed": 20260927
+        }
+      },
+      "spread_cost": {
+        "strategy": "swing",
+        "cost_per_side": 0.00022676246613293508,
+        "oos_start": "2025-07-25",
+        "in_sample": {
+          "n": 1745,
+          "sessions": 289,
+          "win_rate": 0.436676217765043,
+          "mean_net_pct": -0.00010250828560274777,
+          "median_net_pct": -0.0008608754952343739,
+          "avg_win_pct": 0.00878721317855338,
+          "avg_loss_pct": -0.006993625025874336,
+          "t_stat": -0.3303910633647209,
+          "p_value": 0.6290685465726714,
+          "total_net_usd": -3.9184634546926134,
+          "max_drawdown": 0.05476127084229037,
+          "std_net_pct": 0.012960698089772935
+        },
+        "out_of_sample": {
+          "n": 643,
+          "sessions": 125,
+          "win_rate": 0.4214618973561431,
+          "mean_net_pct": -0.0007934883832371692,
+          "median_net_pct": -0.0008399421207890946,
+          "avg_win_pct": 0.008067797076215756,
+          "avg_loss_pct": -0.00724888719912895,
+          "t_stat": -1.579221540688025,
+          "p_value": 0.9432528373581321,
+          "total_net_usd": -16.403636394759133,
+          "max_drawdown": 0.042349916924152214,
+          "std_net_pct": 0.012740984879456728
+        },
+        "verdict": "FAIL",
+        "reasons": [
+          "mean net return -0.0793% <= 0",
+          "t-stat -1.58 < 2.0",
+          "p-value 0.943 > 0.05 (indistinguishable from luck)"
+        ],
+        "criteria": {
+          "oos_fraction": 0.3,
+          "min_oos_trades": 100,
+          "min_t_stat": 2.0,
+          "max_p_value": 0.05,
+          "max_drawdown_pct": 0.2,
+          "permutations": 20000,
+          "seed": 20260927
+        }
+      }
+    }
+  },
+  "with_removed": {
+    "last_session": "2025-11-04",
+    "crt": {
+      "gross_mean_pct": 0.0003682174565514337,
+      "pre_registered": {
+        "strategy": "crt",
+        "cost_per_side": 0.001,
+        "oos_start": "2025-04-29",
+        "in_sample": {
+          "n": 437,
+          "sessions": 201,
+          "win_rate": 0.32036613272311215,
+          "mean_net_pct": -0.002263723107763541,
+          "median_net_pct": -0.004020258990421726,
+          "avg_win_pct": 0.010392427241147757,
+          "avg_loss_pct": -0.008229585225095466,
+          "t_stat": -4.175592752860014,
+          "p_value": 1.0,
+          "total_net_usd": -40.2598353549982,
+          "max_drawdown": 0.08963921736126977,
+          "std_net_pct": 0.01133302605998915
+        },
+        "out_of_sample": {
+          "n": 196,
+          "sessions": 87,
+          "win_rate": 0.3520408163265306,
+          "mean_net_pct": -0.00022400221204191053,
+          "median_net_pct": -0.003566043748674113,
+          "avg_win_pct": 0.011743717206454018,
+          "avg_loss_pct": -0.006726148982720802,
+          "t_stat": -0.28052855488676265,
+          "p_value": 0.607369631518424,
+          "total_net_usd": -0.9176758279993248,
+          "max_drawdown": 0.014487376124213544,
+          "std_net_pct": 0.011179008033077519
+        },
+        "verdict": "FAIL",
+        "reasons": [
+          "mean net return -0.0224% <= 0",
+          "t-stat -0.28 < 2.0",
+          "p-value 0.607 > 0.05 (indistinguishable from luck)"
+        ],
+        "criteria": {
+          "oos_fraction": 0.3,
+          "min_oos_trades": 100,
+          "min_t_stat": 2.0,
+          "max_p_value": 0.05,
+          "max_drawdown_pct": 0.2,
+          "permutations": 20000,
+          "seed": 20260927
+        }
+      },
+      "spread_cost": {
+        "strategy": "crt",
+        "cost_per_side": 0.00019577449447425745,
+        "oos_start": "2025-04-29",
+        "in_sample": {
+          "n": 437,
+          "sessions": 201,
+          "win_rate": 0.34553775743707094,
+          "mean_net_pct": -0.0006557543859270552,
+          "median_net_pct": -0.0023446512309269287,
+          "avg_win_pct": 0.011240725466991381,
+          "avg_loss_pct": -0.006936762979600776,
+          "t_stat": -1.2067671335348744,
+          "p_value": 0.8861056947152642,
+          "total_net_usd": -12.534458419686374,
+          "max_drawdown": 0.03898825623706805,
+          "std_net_pct": 0.011359479938284001
+        },
+        "out_of_sample": {
+          "n": 196,
+          "sessions": 87,
+          "win_rate": 0.3826530612244898,
+          "mean_net_pct": 0.001386760697155985,
+          "median_net_pct": -0.0018252886441947887,
+          "avg_win_pct": 0.012383701175427555,
+          "avg_loss_pct": -0.005429524723260277,
+          "t_stat": 1.7343970763815688,
+          "p_value": 0.042747862606869656,
+          "total_net_usd": 9.153115244523843,
+          "max_drawdown": 0.009264533634309067,
+          "std_net_pct": 0.011193889810220453
+        },
+        "verdict": "FAIL",
+        "reasons": [
+          "t-stat 1.73 < 2.0"
+        ],
+        "criteria": {
+          "oos_fraction": 0.3,
+          "min_oos_trades": 100,
+          "min_t_stat": 2.0,
+          "max_p_value": 0.05,
+          "max_drawdown_pct": 0.2,
+          "permutations": 20000,
+          "seed": 20260927
+        }
+      }
+    },
+    "swing": {
+      "gross_mean_pct": 1.2823406172427105e-05,
+      "pre_registered": {
+        "strategy": "swing",
+        "cost_per_side": 0.001,
+        "oos_start": "2025-05-30",
+        "in_sample": {
+          "n": 1651,
+          "sessions": 252,
+          "win_rate": 0.32404603270745,
+          "mean_net_pct": -0.002017774609519348,
+          "median_net_pct": -0.0024200302724519582,
+          "avg_win_pct": 0.01093502869354015,
+          "avg_loss_pct": -0.008227227805878515,
+          "t_stat": -5.644749980281915,
+          "p_value": 1.0,
+          "total_net_usd": -117.63436523599373,
+          "max_drawdown": 0.23712699535598813,
+          "std_net_pct": 0.014524509625940454
+        },
+        "out_of_sample": {
+          "n": 806,
+          "sessions": 109,
+          "win_rate": 0.2816377171215881,
+          "mean_net_pct": -0.0019245391040032317,
+          "median_net_pct": -0.0026274611761032173,
+          "avg_win_pct": 0.012472962406896273,
+          "avg_loss_pct": -0.007569155413112363,
+          "t_stat": -3.7086493679497576,
+          "p_value": 0.999950002499875,
+          "total_net_usd": -41.877898733997505,
+          "max_drawdown": 0.09936168297445962,
+          "std_net_pct": 0.014732569059247023
+        },
+        "verdict": "FAIL",
+        "reasons": [
+          "mean net return -0.1925% <= 0",
+          "t-stat -3.71 < 2.0",
+          "p-value 1.000 > 0.05 (indistinguishable from luck)"
+        ],
+        "criteria": {
+          "oos_fraction": 0.3,
+          "min_oos_trades": 100,
+          "min_t_stat": 2.0,
+          "max_p_value": 0.05,
+          "max_drawdown_pct": 0.2,
+          "permutations": 20000,
+          "seed": 20260927
+        }
+      },
+      "spread_cost": {
+        "strategy": "swing",
+        "cost_per_side": 0.00023888095167548876,
+        "oos_start": "2025-05-30",
+        "in_sample": {
+          "n": 1651,
+          "sessions": 252,
+          "win_rate": 0.4476075105996366,
+          "mean_net_pct": -0.00048483172498643977,
+          "median_net_pct": -0.0008340028240353128,
+          "avg_win_pct": 0.00924628298761365,
+          "avg_loss_pct": -0.008370022265130592,
+          "t_stat": -1.354292379509148,
+          "p_value": 0.9130043497825109,
+          "total_net_usd": -29.83022335482498,
+          "max_drawdown": 0.0702401312473438,
+          "std_net_pct": 0.014546286332247405
+        },
+        "out_of_sample": {
+          "n": 806,
+          "sessions": 109,
+          "win_rate": 0.40694789081885857,
+          "mean_net_pct": -0.0004238837218310949,
+          "median_net_pct": -0.0010058637060300132,
+          "avg_win_pct": 0.009952376681707738,
+          "avg_loss_pct": -0.007543995463171548,
+          "t_stat": -0.8147629329789011,
+          "p_value": 0.7871106444677766,
+          "total_net_usd": -8.062076104156398,
+          "max_drawdown": 0.043955670667057495,
+          "std_net_pct": 0.014770085078694595
+        },
+        "verdict": "FAIL",
+        "reasons": [
+          "mean net return -0.0424% <= 0",
+          "t-stat -0.81 < 2.0",
+          "p-value 0.787 > 0.05 (indistinguishable from luck)"
+        ],
+        "criteria": {
+          "oos_fraction": 0.3,
+          "min_oos_trades": 100,
+          "min_t_stat": 2.0,
+          "max_p_value": 0.05,
+          "max_drawdown_pct": 0.2,
+          "permutations": 20000,
+          "seed": 20260927
+        }
+      }
+    }
+  },
+  "survivorship": {
+    "common_period_end": "2025-11-04",
+    "crt": {
+      "survivors": {
+        "n": 563,
+        "sessions": 274,
+        "win_rate": 0.33037300177619894,
+        "mean_net_pct": -0.00163534667982363,
+        "median_net_pct": -0.0038652491569874017,
+        "avg_win_pct": 0.010198986330667535,
+        "avg_loss_pct": -0.007474036175715824,
+        "t_stat": -3.629304564996702,
+        "p_value": 1.0,
+        "total_net_usd": -38.03282110299759,
+        "max_drawdown": 0.07889716169599682,
+        "std_net_pct": 0.01069154863843874
+      },
+      "with_removed": {
+        "n": 633,
+        "sessions": 288,
+        "win_rate": 0.330173775671406,
+        "mean_net_pct": -0.0016321507609050269,
+        "median_net_pct": -0.003900712353471565,
+        "avg_win_pct": 0.010838546894765615,
+        "avg_loss_pct": -0.007779263520421923,
+        "t_stat": -3.6288039403638943,
+        "p_value": 0.999750012499375,
+        "total_net_usd": -41.17751118299752,
+        "max_drawdown": 0.08963921736126977,
+        "std_net_pct": 0.011316148092830965
+      },
+      "inflation_mean_pct": -3.19591891860321e-06
+    },
+    "swing": {
+      "survivors": {
+        "n": 2158,
+        "sessions": 360,
+        "win_rate": 0.303985171455051,
+        "mean_net_pct": -0.001903323529029701,
+        "median_net_pct": -0.0025734151229570186,
+        "avg_win_pct": 0.010246206074900711,
+        "avg_loss_pct": -0.007209642716898111,
+        "t_stat": -6.887441234439781,
+        "p_value": 1.0,
+        "total_net_usd": -137.39764895799192,
+        "max_drawdown": 0.2747952979159837,
+        "std_net_pct": 0.012837499220510536
+      },
+      "with_removed": {
+        "n": 2457,
+        "sessions": 361,
+        "win_rate": 0.31013431013431014,
+        "mean_net_pct": -0.0019871894172336377,
+        "median_net_pct": -0.0025163551895846853,
+        "avg_win_pct": 0.011393179550406082,
+        "avg_loss_pct": -0.008002434935429193,
+        "t_stat": -6.751215386412146,
+        "p_value": 1.0,
+        "total_net_usd": -159.51226396999124,
+        "max_drawdown": 0.3190245279399827,
+        "std_net_pct": 0.014590154145335137
+      },
+      "inflation_mean_pct": 8.386588820393664e-05
+    }
+  }
+}
