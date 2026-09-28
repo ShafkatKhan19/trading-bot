@@ -48,6 +48,8 @@ BOOK_DIR = os.path.join("data", "books")
 EQUITY_LOG = os.path.join(BOOK_DIR, "equity_log.csv")
 FILLS_LOG  = os.path.join(BOOK_DIR, "fills.csv")
 H5_EVENTS_LOG = os.path.join(BOOK_DIR, "h5_events.csv")
+HALT       = os.path.join("data", "andy", "HALT")                # written by andy.py
+HEARTBEAT  = os.path.join("data", "andy", "runner_heartbeat")    # read by andy.py
 
 os.makedirs("logs", exist_ok=True)
 logging.basicConfig(
@@ -341,11 +343,22 @@ def main():
     tl.init_db()
     client = AlpacaClient()
     run_at = datetime.strptime(config.DAILY_RUN_TIME, "%H:%M").time()
+    halt_logged = None
     while True:
         try:
+            # Heartbeat for andy.py, which escalates if this goes stale.
+            os.makedirs(os.path.dirname(HEARTBEAT), exist_ok=True)
+            with open(HEARTBEAT, "w") as f:
+                f.write(datetime.now(ET).isoformat(timespec="seconds"))
             now = datetime.now(ET)
-            if (now.time() >= run_at and now.time() < datetime.strptime("15:30", "%H:%M").time()
-                    and not already_ran(now.date()) and client.trading.get_clock().is_open):
+            due = (now.time() >= run_at and now.time() < datetime.strptime("15:30", "%H:%M").time()
+                   and not already_ran(now.date()))
+            if due and os.path.exists(HALT):
+                # Andy paused new orders on a critical fault; the owner resumes on the dashboard.
+                if halt_logged != now.date():
+                    logger.warning(f"HALT present ({HALT}) — skipping today's run until resumed")
+                    halt_logged = now.date()
+            elif due and client.trading.get_clock().is_open:
                 logger.info(f"Running session {now.date()}")
                 run_session(client)
         except Exception as e:

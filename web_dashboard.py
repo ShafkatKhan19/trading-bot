@@ -557,6 +557,43 @@ def fetch_daily_books() -> dict:
     }
 
 
+# ── Andy (andy.py): status, escalations, daily reports ─────────
+ANDY_DIR = os.path.join(os.path.dirname(__file__), "data", "andy")
+
+
+def _json_or(path: str, default):
+    import json
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return default
+
+
+def fetch_andy() -> dict:
+    reports = sorted(f for f in os.listdir(os.path.join(ANDY_DIR, "reports"))
+                     if f.endswith(".json")) if os.path.isdir(os.path.join(ANDY_DIR, "reports")) else []
+    esc = [e for e in _json_or(os.path.join(ANDY_DIR, "escalations.json"), [])
+           if e.get("status") in ("open", "cleared")]
+    return {
+        "status":      _json_or(os.path.join(ANDY_DIR, "status.json"), None),
+        "halt":        _json_or(os.path.join(ANDY_DIR, "HALT"), None),
+        "escalations": sorted(esc, key=lambda e: (e["status"] != "open", e["level"] != "critical")),
+        "report":      _json_or(os.path.join(ANDY_DIR, "reports", reports[-1]), None) if reports else None,
+    }
+
+
+def _owner_action(view):
+    """POSTs that change state need a custom header, which a cross-site form
+    cannot send without a CORS preflight this server never approves."""
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if request.headers.get("X-Andy-Owner") != "1":
+            return jsonify({"error": "missing header"}), 403
+        return view(*args, **kwargs)
+    return wrapped
+
+
 def next_daily_run(books: list) -> str | None:
     """Next DAILY_RUN_TIME on a weekday that hasn't run yet (holidays aside —
     the runner itself checks the broker clock). Returned as an offset-aware
@@ -620,6 +657,7 @@ def api_data():
     return jsonify({
         "db_ready":       True,
         "daily":          daily,
+        "andy":           fetch_andy(),
         "summary":          summary,
         "backtest_summary": backtest_summary,
         "backtest_trades":  fetch_recent_trades("backtest"),
@@ -639,6 +677,37 @@ def api_data():
         "next_eval":      next_daily_run([b for b in daily["books"] if b.get("started")]),
         "cycle_minutes":  24 * 60,
     })
+
+
+@app.route("/api/andy/ack/<esc_id>", methods=["POST"])
+@require_auth
+@_owner_action
+def api_andy_ack(esc_id):
+    """Owner has seen an escalation (and dealt with it)."""
+    import json
+    path = os.path.join(ANDY_DIR, "escalations.json")
+    esc = _json_or(path, [])
+    hit = False
+    for e in esc:
+        if e.get("id") == esc_id:
+            e["status"], e["acked_at"], hit = "acknowledged", datetime.now().isoformat(timespec="seconds"), True
+    if not hit:
+        return jsonify({"error": "not found"}), 404
+    with open(path + ".tmp", "w", encoding="utf-8") as f:
+        json.dump(esc, f, indent=2)
+    os.replace(path + ".tmp", path)
+    return jsonify({"ok": True})
+
+
+@app.route("/api/andy/resume", methods=["POST"])
+@require_auth
+@_owner_action
+def api_andy_resume():
+    """Owner lifts Andy's HALT. Andy re-halts if the fault is still there."""
+    path = os.path.join(ANDY_DIR, "HALT")
+    if os.path.exists(path):
+        os.replace(path, os.path.join(ANDY_DIR, f"HALT.resumed-{datetime.now():%Y%m%d-%H%M%S}"))
+    return jsonify({"ok": True})
 
 
 @app.route("/api/symbol/<symbol>")
@@ -1149,6 +1218,11 @@ HTML = r"""<!DOCTYPE html>
     gap: 14px;
     padding: 18px;
   }
+  .andy-btn {
+    background: transparent; color: var(--green); border: 1px solid var(--green);
+    font-family: var(--mono); font-size: 11px; padding: 3px 10px; border-radius: 4px; cursor: pointer;
+  }
+  .andy-btn:hover { background: rgba(61,220,132,.12); }
   .position-card {
     background: var(--bg-soft);
     border: 1px solid var(--border);
@@ -1407,6 +1481,36 @@ HTML = r"""<!DOCTYPE html>
   </div>
 
   <div id="dashboard" style="display:none;">
+
+    <!-- 00a Andy -->
+    <section class="block reveal" id="andy">
+      <div class="block-head">
+        <span class="block-num">00a</span>
+        <span class="block-title">Andy &middot; Co-founder's Desk</span>
+        <span class="block-sub" id="andy-sub">monitoring &middot; reports &middot; your calls</span>
+      </div>
+      <div id="andy-halt" class="section" style="display:none;border:1px solid var(--red)">
+        <div class="section-header">
+          <div class="section-title neg">Trading paused by Andy</div>
+          <button class="andy-btn" id="andy-resume">Resume trading</button>
+        </div>
+        <div id="andy-halt-reason" style="font-family:var(--mono);font-size:12px;color:var(--muted)"></div>
+      </div>
+      <div class="two-col">
+        <div class="section">
+          <div class="section-header"><div class="section-title">Needs your call</div><div class="badge" id="andy-esc-count">0</div></div>
+          <div id="andy-esc"></div>
+        </div>
+        <div class="section">
+          <div class="section-header"><div class="section-title">Desk checks</div><div class="badge" id="andy-checked">—</div></div>
+          <div id="andy-checks"></div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header"><div class="section-title" id="andy-report-title">Andy's report</div></div>
+        <div id="andy-report" style="font-family:var(--mono);font-size:12px;line-height:1.7"></div>
+      </div>
+    </section>
 
     <!-- 00 Daily books -->
     <section class="block reveal" id="daily-books">
@@ -2049,6 +2153,67 @@ HTML = r"""<!DOCTYPE html>
     }).join('');
   }
 
+  const LEVEL_CLS = { ok: 'pos', warn: 'neu', critical: 'neg' };
+
+  async function andyPost(url) {
+    try {
+      const res = await fetch(url, { method: 'POST', headers: { 'X-Andy-Owner': '1' } });
+      if (!res.ok) throw new Error(res.status);
+      refresh();
+    } catch (err) { alert('Andy: request failed (' + err.message + ')'); }
+  }
+
+  function renderAndy(a) {
+    if (!a) return;
+    const halt = $('andy-halt');
+    if (a.halt) {
+      halt.style.display = 'block';
+      $('andy-halt-reason').textContent = 'Since ' + (a.halt.since || '?') + ' — ' + (a.halt.reason || '');
+    } else { halt.style.display = 'none'; }
+
+    const open = a.escalations.filter(e => e.status === 'open').length;
+    $('andy-esc-count').textContent = open + ' open';
+    $('andy-esc').innerHTML = a.escalations.length ? a.escalations.map(e => `
+      <div class="pc-row" style="display:block;border-bottom:1px solid var(--border,#232a36);padding:6px 0">
+        <span class="${LEVEL_CLS[e.level] || ''}" style="font-weight:700">${esc(e.level.toUpperCase())}</span>
+        ${e.status === 'cleared' ? '<span class="pos"> (cleared)</span>' : ''}
+        <span> ${esc(e.message)}</span><br>
+        <span style="opacity:.8">&rarr; ${esc(e.ask)}</span>
+        <button class="andy-btn" data-ack="${esc(e.id)}" style="float:right">Acknowledge</button>
+      </div>`).join('')
+      : '<div class="pc-row"><span>Nothing needs you right now.</span><span></span></div>';
+    $('andy-esc').querySelectorAll('[data-ack]').forEach(b =>
+      b.addEventListener('click', () => andyPost('/api/andy/ack/' + encodeURIComponent(b.dataset.ack))));
+
+    const st = a.status;
+    $('andy-checked').textContent = st ? 'checked ' + st.time.slice(11, 16) + ' ET · ' + st.mode : 'Andy not running';
+    $('andy-checks').innerHTML = st ? st.checks.map(c => `
+      <div class="pc-row"><span>${esc(c.name)}</span>
+      <span class="${LEVEL_CLS[c.level] || ''}">${esc(c.detail)}</span></div>`).join('')
+      : '<div class="pc-row"><span>No status yet — andy.py not started?</span><span></span></div>';
+
+    const r = a.report, out = [];
+    if (r) {
+      $('andy-report-title').textContent = "Andy's report · " + r.date;
+      if (r.morning) {
+        out.push('<b>Pre-market ' + esc(r.morning.time.slice(11, 16)) + '</b> — ' + esc(r.morning.headline));
+        r.morning.plan.forEach(p => out.push('&nbsp;&middot; ' + esc(p)));
+      }
+      if (r.close) {
+        out.push('<br><b>Close ' + esc(r.close.time.slice(11, 16)) + '</b>');
+        r.close.fills.forEach(f => out.push('&nbsp;&middot; ' + esc(f)));
+        Object.entries(r.close.books).forEach(([n, b]) => out.push(
+          `&nbsp;&middot; ${esc(n)}: $${b.equity.toFixed(2)} <span class="${pnlClass(b.return)}">${fmtPct(b.return * 100)}</span>`));
+        r.close.take.forEach(t => out.push('&ldquo;' + esc(t) + '&rdquo;'));
+      }
+    }
+    $('andy-report').innerHTML = out.length ? out.join('<br>') : 'First report at 09:00 ET on the next session.';
+  }
+
+  $('andy-resume').addEventListener('click', () => {
+    if (confirm('Resume trading? Andy will pause it again if the fault is still there.')) andyPost('/api/andy/resume');
+  });
+
   function renderRecentTrades(rows) {
     const tb = $('recent-tbody');
     if (rows.length === 0) {
@@ -2153,6 +2318,7 @@ HTML = r"""<!DOCTYPE html>
       $('waiting').style.display   = 'none';
       $('dashboard').style.display = 'block';
 
+      renderAndy(data.andy);
       renderDailyBooks(data.daily);
       renderSimStrip(data.backtest_summary);
       renderStats(data.summary);

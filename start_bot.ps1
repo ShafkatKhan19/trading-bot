@@ -27,6 +27,12 @@ while ($true) {
             "/c `"`"$pythonExe`" daily_runner.py >> `"$PSScriptRoot\logs\daily_runner_console.log`" 2>&1`""
     }
 
+    # andy.py: desk supervisor — health checks, reconciliation, daily reports.
+    if (-not (Test-ScriptRunning "andy.py")) {
+        Start-Process -FilePath "cmd.exe" -WindowStyle Hidden -ArgumentList `
+            "/c `"`"$pythonExe`" andy.py >> `"$PSScriptRoot\logs\andy_console.log`" 2>&1`""
+    }
+
     if (-not (Test-ScriptRunning "web_dashboard.py")) {
         Start-Process -FilePath $pythonExe -ArgumentList "web_dashboard.py" -WindowStyle Hidden `
             -RedirectStandardOutput (Join-Path $PSScriptRoot "logs\dashboard_stdout.log") `
