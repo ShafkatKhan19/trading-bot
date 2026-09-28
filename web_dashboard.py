@@ -1996,6 +1996,7 @@ HTML = r"""<!DOCTYPE html>
   const BOOK_BLURB = {
     index: 'Buy &amp; hold SPY &middot; never sells',
     h1:    'Paper forward test &middot; RSI(2) pullback rules',
+    h5:    'Paper forward test &middot; analyst-upgrade drift, 10-day hold',
   };
 
   function renderDailyBooks(d) {

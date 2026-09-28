@@ -26,12 +26,14 @@ import logging
 import os
 import time
 from datetime import date, datetime, timedelta, timezone
+from datetime import time as dtime
 from zoneinfo import ZoneInfo
 
 import pandas as pd
 
 import config
 import daily_research as research
+import round2_research as r2          # H5 rules exactly as backtested
 import trade_logger as tl
 from alpaca_client import AlpacaClient
 
@@ -45,6 +47,7 @@ def floor_qty(qty: float) -> float:
 BOOK_DIR = os.path.join("data", "books")
 EQUITY_LOG = os.path.join(BOOK_DIR, "equity_log.csv")
 FILLS_LOG  = os.path.join(BOOK_DIR, "fills.csv")
+H5_EVENTS_LOG = os.path.join(BOOK_DIR, "h5_events.csv")
 
 os.makedirs("logs", exist_ok=True)
 logging.basicConfig(
@@ -213,6 +216,90 @@ def run_h1(client, closes, today: date):
     return book
 
 
+def h5_window_events(items: list, prev_session: date, today: date) -> list:
+    """
+    Registered H5 events that enter at `today`'s open: upgrade headlines on a
+    stock in L published in [prev_session 09:30 ET, today 09:30 ET) — the same
+    mapping as round2_research.h5_events. items: dicts with created_at (aware
+    datetime), headline, symbols (list). Returns first-come
+    [(created_at, symbol, headline)], one per stock.
+    """
+    lo = datetime.combine(prev_session, dtime(9, 30), ET)
+    hi = datetime.combine(today, dtime(9, 30), ET)
+    out, seen = [], set()
+    for it in sorted(items, key=lambda x: x["created_at"]):
+        t = it["created_at"].astimezone(ET)
+        if not (lo <= t < hi) or not r2.UP.search(it["headline"]) or r2.DOWN.search(it["headline"]):
+            continue
+        for s in it["symbols"]:
+            if s in r2.L and s not in seen:
+                seen.add(s)
+                out.append((t, s, it["headline"]))
+    return out
+
+
+def fetch_h5_news(prev_session: date, today: date) -> list:
+    from alpaca.data.historical.news import NewsClient
+    from alpaca.data.requests import NewsRequest
+    nc = NewsClient(config.ALPACA_API_KEY, config.ALPACA_SECRET_KEY)
+    r = nc.get_news(NewsRequest(symbols=",".join(r2.L),
+                                start=datetime.combine(prev_session, dtime(9, 30), ET),
+                                end=datetime.combine(today, dtime(9, 30), ET),
+                                limit=None, include_content=False))   # limit is a TOTAL cap
+    return [{"created_at": it.created_at, "headline": it.headline, "symbols": list(it.symbols)}
+            for it in r.data.get("news", [])]
+
+
+def log_h5_event(today, t, sym, headline, action):
+    row = {"entry_date": today.isoformat(), "published": t.isoformat(timespec="seconds"),
+           "symbol": sym, "action": action, "headline": headline}
+    new = not os.path.exists(H5_EVENTS_LOG)
+    pd.DataFrame([row]).to_csv(H5_EVENTS_LOG, mode="a", header=new, index=False)
+
+
+def run_h5(client, today: date):
+    if config.TRADING_MODE == "live":
+        logger.info("[h5] paper-only forward test — skipped in live mode")
+        return None
+    book = load_book("h5", config.H5_PAPER_CAPITAL)
+    closes = completed_daily_closes(client, list(r2.L)).ffill()
+    last = closes.index[-1]
+    prev_session = last.date()
+    if book["last_run"] and book["last_run"] < prev_session.isoformat():
+        logger.warning(f"[h5] last run {book['last_run']} — sessions missed; their events are "
+                       f"not entered late (pre-registered)")
+    # Exits first, at the open, as in round2_research.run_events: held >= H5_HOLD sessions.
+    for s, p in list(book["positions"].items()):
+        held = int((closes.index >= pd.Timestamp(p["entry_date"])).sum())
+        if held >= r2.H5_HOLD and p["entry_date"] != today.isoformat():
+            sell(client, book, s, f"h5 exit: {held}-day hold")
+    # Size from equity at the previous close, before any of today's buys.
+    equity = book_equity(book, closes.loc[last].to_dict())
+    events = h5_window_events(fetch_h5_news(prev_session, today), prev_session, today)
+    already = set()
+    if os.path.exists(H5_EVENTS_LOG):      # same-day retry: don't log or act twice,
+        ev = pd.read_csv(H5_EVENTS_LOG)    # but do retry an order that failed
+        already = set(ev.loc[(ev.entry_date == today.isoformat())
+                             & (ev.action != "skip: order failed"), "symbol"])
+    for t, s, headline in events:
+        if s in already:
+            continue
+        if s in book["positions"]:
+            action = "skip: held"
+        elif len(book["positions"]) >= r2.MAX_POS:
+            action = "skip: slots full"
+        elif buy(client, book, s, r2.POS_PCT * equity, f"h5 entry: upgrade '{headline[:80]}'"):
+            action = "entered"
+        else:
+            action = "skip: order failed"
+        log_h5_event(today, t, s, headline, action)
+    logger.info(f"[h5] {len(events)} upgrade event(s) for {today} | "
+                f"holding {sorted(book['positions']) or '-'}")
+    book["last_run"] = today.isoformat()
+    save_book(book)
+    return book
+
+
 def log_equity(client, books: list):
     row = {"date": date.today().isoformat()}
     for b in books:
@@ -235,7 +322,8 @@ def run_session(client):
         logger.error(f"Only {len(closes)} daily bars — need 205; skipping today")
         return
     books = [run_index(client, closes, today) if "index" in config.DAILY_BOOKS else None,
-             run_h1(client, closes, today) if "h1" in config.DAILY_BOOKS else None]
+             run_h1(client, closes, today) if "h1" in config.DAILY_BOOKS else None,
+             run_h5(client, today) if "h5" in config.DAILY_BOOKS else None]
     log_equity(client, books)
 
 
