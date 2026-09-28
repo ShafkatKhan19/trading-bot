@@ -185,7 +185,7 @@ def worst_drawdowns(eq, n=5):
 
 def regime_split(eq, spy):
     r = eq.pct_change().dropna()
-    up = (spy > spy.rolling(200).mean()).shift(1).reindex(r.index).fillna(False)
+    up = (spy > spy.rolling(200).mean()).shift(1).reindex(r.index).fillna(False).astype(bool)
     f = lambda x: {"days": int(len(x)), "ann_return": round(float(x.mean() * 252), 4),
                    "sharpe": round(float(x.mean() / x.std() * math.sqrt(252)), 2) if x.std() > 0 else 0.0}
     return {"spy_above_200d": f(r[up]), "spy_below_200d": f(r[~up])}
