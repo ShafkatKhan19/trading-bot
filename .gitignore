@@ -14,3 +14,5 @@ data/earnings_dates.json
 data/daily/
 data/quotes/
 data/robustness/trades_*.csv
+# Andy runtime state (status, escalations, HALT, heartbeat, reports)
+data/andy/
