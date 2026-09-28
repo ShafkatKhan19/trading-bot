@@ -20,7 +20,8 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "trades.db")
-LOG_PATH = os.path.join(os.path.dirname(__file__), "logs", "paper_runner.log")
+LOG_PATH = os.path.join(os.path.dirname(__file__), "logs", "daily_runner.log")
+BOOK_DIR = os.path.join(os.path.dirname(__file__), "data", "books")
 
 # ── Security ──────────────────────────────────────────────────
 # Set DASHBOARD_PASSWORD in .env before exposing this dashboard publicly
@@ -491,6 +492,90 @@ def build_decision_narratives(cycle_feed: list) -> list:
     return narratives
 
 
+# ── Daily runner books (daily_runner.py, since 2026-09-28) ─────
+_price_cache: dict = {}      # symbol -> (fetched_at, price); the page polls every 10s
+
+
+def _latest_price(symbol: str) -> float | None:
+    hit = _price_cache.get(symbol)
+    if hit and (datetime.now() - hit[0]).total_seconds() < 60:
+        return hit[1]
+    try:
+        from alpaca.data.historical import StockHistoricalDataClient
+        from alpaca.data.requests import StockLatestTradeRequest
+        from alpaca.data.enums import DataFeed
+        client = StockHistoricalDataClient(os.getenv("ALPACA_API_KEY"), os.getenv("ALPACA_SECRET_KEY"))
+        trade = client.get_stock_latest_trade(
+            StockLatestTradeRequest(symbol_or_symbols=symbol, feed=DataFeed.IEX))[symbol]
+        price = float(trade.price)
+    except Exception as e:
+        logger.warning(f"latest price for {symbol} failed: {e}")
+        return hit[1] if hit else None
+    _price_cache[symbol] = (datetime.now(), price)
+    return price
+
+
+def _read_csv_rows(path: str) -> list:
+    import csv
+    if not os.path.isfile(path):
+        return []
+    with open(path, newline="", encoding="utf-8") as f:
+        return list(csv.DictReader(f))
+
+
+def fetch_daily_books() -> dict:
+    """Each book's ledger valued at the latest price, plus the runner's fills.
+    Read-only: the ledgers are written by daily_runner.py alone."""
+    import json
+    import config as cfg
+    books = []
+    for name in cfg.DAILY_BOOKS:
+        path = os.path.join(BOOK_DIR, f"{name}.json")
+        if not os.path.isfile(path):
+            books.append({"name": name, "started": False})
+            continue
+        with open(path) as f:
+            b = json.load(f)
+        positions, equity = [], b["cash"]
+        for sym, p in b["positions"].items():
+            price = _latest_price(sym) or p["entry_price"]
+            value = p["qty"] * price
+            equity += value
+            positions.append({"symbol": sym, "qty": p["qty"], "entry_price": p["entry_price"],
+                              "entry_date": p["entry_date"], "price": price, "value": round(value, 2),
+                              "pnl_pct": round((price / p["entry_price"] - 1) * 100, 2)})
+        books.append({"name": name, "started": True, "cash": round(b["cash"], 2),
+                      "deposited": b["deposited"], "equity": round(equity, 2),
+                      "return_pct": round((equity / b["deposited"] - 1) * 100, 2),
+                      "last_run": b["last_run"], "positions": positions})
+    fills = _read_csv_rows(os.path.join(BOOK_DIR, "fills.csv"))
+    return {
+        "books":        books,
+        "fills":        list(reversed(fills))[:20],
+        "equity_log":   _read_csv_rows(os.path.join(BOOK_DIR, "equity_log.csv")),
+        "run_time_et":  cfg.DAILY_RUN_TIME,
+    }
+
+
+def next_daily_run(books: list) -> str | None:
+    """Next DAILY_RUN_TIME on a weekday that hasn't run yet (holidays aside —
+    the runner itself checks the broker clock). Returned as an offset-aware
+    ISO string so the browser counts down correctly in any timezone."""
+    from zoneinfo import ZoneInfo
+    import config as cfg
+    now = datetime.now(ZoneInfo("America/New_York"))
+    hh, mm = map(int, cfg.DAILY_RUN_TIME.split(":"))
+    ran_today = bool(books) and all(b.get("last_run") == now.date().isoformat() for b in books)
+    day = now
+    for _ in range(8):
+        slot = day.replace(hour=hh, minute=mm, second=0, microsecond=0)
+        is_today = slot.date() == now.date()
+        if slot.weekday() < 5 and (slot > now or (is_today and not ran_today and now.hour < 15)):
+            return slot.isoformat(timespec="seconds")
+        day = (day + timedelta(days=1)).replace(hour=0, minute=0)
+    return None
+
+
 def fetch_symbol_history(symbol: str) -> list:
     conn = get_conn()
     c = conn.cursor()
@@ -531,8 +616,10 @@ def api_data():
         }
         for sym in cfg.TICKERS
     ]
+    daily = fetch_daily_books()
     return jsonify({
         "db_ready":       True,
+        "daily":          daily,
         "summary":          summary,
         "backtest_summary": backtest_summary,
         "backtest_trades":  fetch_recent_trades("backtest"),
@@ -547,8 +634,10 @@ def api_data():
         "cycle_feed":     cycle_feed,
         "decision_narratives": build_decision_narratives(cycle_feed),
         "news_feed":      fetch_news_feed(40),
-        "next_eval":      fetch_next_eval(),
-        "cycle_minutes":  cycle_minutes(),
+        # The intraday runner's signal_log cadence is retired; count down to
+        # the daily runner's once-a-session slot instead.
+        "next_eval":      next_daily_run([b for b in daily["books"] if b.get("started")]),
+        "cycle_minutes":  24 * 60,
     })
 
 
@@ -1319,6 +1408,28 @@ HTML = r"""<!DOCTYPE html>
 
   <div id="dashboard" style="display:none;">
 
+    <!-- 00 Daily books -->
+    <section class="block reveal" id="daily-books">
+      <div class="block-head">
+        <span class="block-num">00</span>
+        <span class="block-title">Daily Books</span>
+        <span class="block-sub" id="daily-sub">daily_runner.py &middot; once per session</span>
+      </div>
+      <div class="two-col" id="daily-book-cards"></div>
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Fills</div>
+          <div class="badge">data/books/fills.csv &middot; newest first</div>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Time (ET)</th><th>Book</th><th>Side</th><th>Symbol</th><th>Qty</th><th>Fill $</th><th>Notional $</th><th>Cost bps</th></tr>
+          </thead>
+          <tbody id="fills-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
     <!-- 01 Performance -->
     <section class="block reveal" id="performance">
       <div class="block-head">
@@ -1501,7 +1612,7 @@ HTML = r"""<!DOCTYPE html>
       <div class="block-head">
         <span class="block-num">06</span>
         <span class="block-title">Trade Log</span>
-        <span class="block-sub">last 15 lines &middot; logs/paper_runner.log</span>
+        <span class="block-sub">last 15 lines &middot; logs/daily_runner.log</span>
       </div>
       <div class="section">
         <div class="log-body" id="log-body"></div>
@@ -1583,9 +1694,10 @@ HTML = r"""<!DOCTYPE html>
     if (!nextEvalAt) { el.textContent = '—'; return; }
     const diffMs = nextEvalAt.getTime() - Date.now();
     if (diffMs <= 0) { el.textContent = 'due now'; ring.style.strokeDashoffset = 0; return; }
-    const mins = Math.floor(diffMs / 60000);
+    const hrs  = Math.floor(diffMs / 3600000);
+    const mins = Math.floor((diffMs % 3600000) / 60000);
     const secs = Math.floor((diffMs % 60000) / 1000);
-    el.textContent = String(mins).padStart(2,'0') + ':' + String(secs).padStart(2,'0');
+    el.textContent = (hrs ? hrs + 'h ' : '') + String(mins).padStart(2,'0') + ':' + String(secs).padStart(2,'0');
     const frac = Math.max(0, Math.min(1, diffMs / EVAL_WINDOW_MS));
     ring.style.strokeDashoffset = (56.5 * (1 - frac)).toFixed(1);
   }
@@ -1881,6 +1993,61 @@ HTML = r"""<!DOCTYPE html>
     });
   }
 
+  const BOOK_BLURB = {
+    index: 'Buy &amp; hold SPY &middot; never sells',
+    h1:    'Paper forward test &middot; RSI(2) pullback rules',
+  };
+
+  function renderDailyBooks(d) {
+    const cards = $('daily-book-cards');
+    if (!d || !d.books) { cards.innerHTML = ''; return; }
+    $('daily-sub').innerHTML = 'daily_runner.py &middot; runs ' + esc(d.run_time_et) + ' ET each session';
+    cards.innerHTML = d.books.map(b => {
+      if (!b.started) {
+        return `<div class="section">
+          <div class="section-header"><div class="section-title">${esc(b.name)}</div></div>
+          <div style="color:var(--muted);font-family:var(--mono);font-size:12px">${BOOK_BLURB[b.name] || ''}<br><br>
+          No ledger yet &mdash; first run at ${esc(d.run_time_et)} ET.</div></div>`;
+      }
+      const pos = b.positions.length
+        ? b.positions.map(p => `<div class="pc-row">
+            <span class="sym">${esc(p.symbol)} &times;${p.qty.toFixed(4)} @ $${p.entry_price.toFixed(2)}</span>
+            <span>$${p.value.toFixed(2)} <span class="${pnlClass(p.pnl_pct)}">${fmtPct(p.pnl_pct)}</span></span>
+          </div>`).join('')
+        : '<div class="pc-row"><span>No positions</span><span></span></div>';
+      return `<div class="section">
+        <div class="section-header">
+          <div class="section-title">${esc(b.name)}</div>
+          <div class="badge">last run ${esc(b.last_run || 'never')}</div>
+        </div>
+        <div style="color:var(--muted);font-family:var(--mono);font-size:11px;margin-bottom:10px">${BOOK_BLURB[b.name] || ''}</div>
+        <div class="pc-row"><span>Equity</span><span>$${b.equity.toFixed(2)} <span class="${pnlClass(b.return_pct)}">${fmtPct(b.return_pct)}</span></span></div>
+        <div class="pc-row"><span>Cash</span><span>$${b.cash.toFixed(2)}</span></div>
+        <div class="pc-row"><span>Deposited</span><span>$${b.deposited.toFixed(2)}</span></div>
+        ${pos}
+      </div>`;
+    }).join('');
+
+    const tb = $('fills-tbody');
+    if (!d.fills.length) {
+      tb.innerHTML = '<tr class="empty-row"><td colspan="8">No fills yet &mdash; first orders at ' + esc(d.run_time_et) + ' ET</td></tr>';
+      return;
+    }
+    tb.innerHTML = d.fills.map(f => {
+      const qty = parseFloat(f.qty), fill = parseFloat(f.fill), cost = parseFloat(f.cost_bps);
+      return `<tr data-symbol="${esc(f.symbol)}">
+        <td>${esc((f.time||'').slice(0,19).replace('T',' '))}</td>
+        <td>${esc(f.book)}</td>
+        <td class="${f.side === 'BUY' ? 'pos' : 'neg'}">${esc(f.side)}</td>
+        <td class="sym">${esc(f.symbol)}</td>
+        <td>${qty.toFixed(4)}</td>
+        <td>$${fill.toFixed(2)}</td>
+        <td>$${(qty * fill).toFixed(2)}</td>
+        <td class="${cost > 0 ? 'neg' : 'neu'}">${isNaN(cost) ? '—' : cost.toFixed(1)}</td>
+      </tr>`;
+    }).join('');
+  }
+
   function renderRecentTrades(rows) {
     const tb = $('recent-tbody');
     if (rows.length === 0) {
@@ -1985,6 +2152,7 @@ HTML = r"""<!DOCTYPE html>
       $('waiting').style.display   = 'none';
       $('dashboard').style.display = 'block';
 
+      renderDailyBooks(data.daily);
       renderSimStrip(data.backtest_summary);
       renderStats(data.summary);
       renderEquityChart(data.equity_curve);
