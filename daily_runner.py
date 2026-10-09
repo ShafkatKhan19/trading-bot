@@ -13,6 +13,11 @@
 #             backtested). Every session from 2026-09-28 is data those rules
 #             have never seen. "index" is its benchmark in the same account.
 #
+#   "h5"    — PAPER-ONLY forward test of the analyst-upgrade rules (round 2).
+#   "picks" — PAPER-ONLY forward test of the owner's AI-infrastructure basket
+#             (config.PICKS_SYMBOLS): equal-weight buy-and-hold, never sells
+#             (PREREGISTRATION_2026-10-09_picks.md).
+#
 #  Each book has its own virtual cash and share ledger in data/books/*.json
 #  and only ever sells shares it bought, so both can hold SPY in one account.
 #
@@ -302,6 +307,28 @@ def run_h5(client, today: date):
     return book
 
 
+def run_picks(client, today: date):
+    if config.TRADING_MODE == "live":
+        logger.info("[picks] paper-only forward test — skipped in live mode")
+        return None
+    book = load_book("picks", config.PICKS_PAPER_CAPITAL)
+    # Equal weight: split the cash left across the names not yet held. Fills
+    # land a little above the quote, so keep 0.5% back or the last name comes
+    # up short. Held names are never added to; a failed buy is retried on the
+    # next run (pre-registered).
+    todo = [s for s in config.PICKS_SYMBOLS if s not in book["positions"]]
+    for i, s in enumerate(todo):
+        dollars = book["cash"] * 0.995 / (len(todo) - i)
+        if dollars < 1.0:
+            break
+        buy(client, book, s, dollars, "picks entry: equal-weight AI basket")
+    logger.info(f"[picks] holding {len(book['positions'])}/{len(config.PICKS_SYMBOLS)} | "
+                f"cash ${book['cash']:,.2f}")
+    book["last_run"] = today.isoformat()
+    save_book(book)
+    return book
+
+
 def log_equity(client, books: list):
     row = {"date": date.today().isoformat()}
     for b in books:
@@ -311,8 +338,14 @@ def log_equity(client, books: list):
         eq = book_equity(b, prices)
         row[f"{b['name']}_equity"] = round(eq, 2)
         row[f"{b['name']}_return"] = round(eq / b["deposited"] - 1, 4)
-    new = not os.path.exists(EQUITY_LOG)
-    pd.DataFrame([row]).to_csv(EQUITY_LOG, mode="a", header=new, index=False)
+    # Rewrite rather than append: a new book adds columns, and appending a
+    # wider row under the old header would shift every column after it.
+    df = pd.DataFrame([row])
+    if os.path.exists(EQUITY_LOG):
+        df = pd.concat([pd.read_csv(EQUITY_LOG), df], ignore_index=True)
+    tmp = EQUITY_LOG + ".tmp"
+    df.to_csv(tmp, index=False)
+    os.replace(tmp, EQUITY_LOG)
     logger.info("Equity: " + " | ".join(f"{k}={v}" for k, v in row.items() if k != "date"))
 
 
@@ -325,7 +358,8 @@ def run_session(client):
         return
     books = [run_index(client, closes, today) if "index" in config.DAILY_BOOKS else None,
              run_h1(client, closes, today) if "h1" in config.DAILY_BOOKS else None,
-             run_h5(client, today) if "h5" in config.DAILY_BOOKS else None]
+             run_h5(client, today) if "h5" in config.DAILY_BOOKS else None,
+             run_picks(client, today) if "picks" in config.DAILY_BOOKS else None]
     log_equity(client, books)
 
 

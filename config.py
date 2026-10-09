@@ -89,12 +89,20 @@ ENFORCE_T1_SETTLEMENT = CASH_ACCOUNT
 #          H1_PAPER_CAPITAL; skipped automatically in live mode.
 # "h5":    paper-only forward test of the round-2 analyst-upgrade rules
 #          (PREREGISTRATION_2026-09-28_h5_forward.md); also skipped in live.
-DAILY_BOOKS           = ["index", "h1", "h5"]
+# "picks": paper-only forward test of the owner's AI-infrastructure basket,
+#          equal-weight buy-and-hold vs SPY
+#          (PREREGISTRATION_2026-10-09_picks.md); also skipped in live.
+DAILY_BOOKS           = ["index", "h1", "h5", "picks"]
 DAILY_RUN_TIME        = "09:35"    # ET, once per session, after the open
 INDEX_SYMBOL          = "SPY"
 INDEX_MONTHLY_DEPOSIT = float(os.getenv("INDEX_MONTHLY_DEPOSIT", 0))
 H1_PAPER_CAPITAL      = ACCOUNT_CAPITAL   # same scale as the index book it is compared to
 H5_PAPER_CAPITAL      = ACCOUNT_CAPITAL
+# Virtual paper money only (owner's choice, 2026-10-09). Deliberately NOT
+# ACCOUNT_CAPITAL, which sizes the live account. Returns are compared in %.
+PICKS_PAPER_CAPITAL   = 10_000.0
+PICKS_SYMBOLS         = ["SNDK", "DELL", "MU", "MRVL", "INTC", "AMD",
+                         "HPE", "STX", "ARM", "WDC", "AMAT", "CBRS"]
 
 # ── Watchlist ─────────────────────────────────────────────────
 # VRT (17.5% win rate) and AVGO (26.3% win rate) removed earlier — consistent

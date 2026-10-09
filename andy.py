@@ -54,6 +54,7 @@ MAX_FILL_COST_BPS = 25.0          # SPY-type fills should cost ~1 bps
 QTY_TOL          = 1e-3           # shares
 INDEX_DD_ALERT   = 0.15           # index book drawdown that the owner should hear about
 H5_EVAL_DATE     = date(2027, 3, 31)
+PICKS_EVAL_DATE  = date(2027, 1, 8)
 
 os.makedirs(REPORT_DIR, exist_ok=True)
 os.makedirs("logs", exist_ok=True)
@@ -330,6 +331,14 @@ class Desk:
         else:
             plan.append("h5 (paper): first run — buys any upgrade headlines since the last session.")
         plan.append("h1 (paper): RSI(2) rules decide at 09:35 from yesterday's close.")
+        if "picks" in config.DAILY_BOOKS:
+            picks = books.get("picks")
+            held = len(picks["positions"]) if picks else 0
+            n = len(config.PICKS_SYMBOLS)
+            plan.append(f"picks (paper): first run — buy {n} AI names equal-weight with "
+                        f"${config.PICKS_PAPER_CAPITAL:,.0f}." if picks is None else
+                        f"picks (paper): holding {held}/{n}; "
+                        + ("nothing to do — buy-and-hold." if held == n else "retries the missing buys."))
         bad = [c for c in status["checks"] if c["level"] != "ok"]
         headline = ("All systems go." if not bad else
                     f"{len(bad)} thing(s) need a look before the bell: " + ", ".join(c["name"] for c in bad) + ".")
@@ -356,6 +365,10 @@ class Desk:
         if "h5" in vals:
             take.append(f"H5 paper saw {n_ev} upgrade event(s) today. No verdict until "
                         f"{H5_EVAL_DATE:%Y-%m-%d} — I don't grade it early and neither should you.")
+        if "picks" in vals and "index" in vals:
+            take.append(f"AI picks {vals['picks']['return']:+.2%} since its start (index book started "
+                        f"earlier, so compare on {PICKS_EVAL_DATE:%Y-%m-%d}, not today). These names "
+                        f"move several % a day; one week tells you nothing.")
         take.append("Nothing needs you tonight." if not esc_open else
                     f"{len(esc_open)} item(s) waiting for your call on the dashboard.")
         return {"time": status["time"], "fills": lines, "books": vals, "take": take,
