@@ -1,0 +1,81 @@
+{
+  "name": "picks",
+  "cash": -26.37120553890179,
+  "deposited": 10000.0,
+  "created": "2026-10-09",
+  "last_run": "2026-10-15",
+  "positions": {
+    "SNDK": {
+      "qty": 0.5136,
+      "entry_price": 1619.4,
+      "entry_date": "2026-10-09",
+      "trade_id": 7533
+    },
+    "DELL": {
+      "qty": 1.391,
+      "entry_price": 582.69,
+      "entry_date": "2026-10-09",
+      "trade_id": 7534
+    },
+    "MU": {
+      "qty": 0.7995,
+      "entry_price": 1039.506,
+      "entry_date": "2026-10-09",
+      "trade_id": 7535
+    },
+    "MRVL": {
+      "qty": 3.0337,
+      "entry_price": 274.64,
+      "entry_date": "2026-10-09",
+      "trade_id": 7536
+    },
+    "INTC": {
+      "qty": 7.7789,
+      "entry_price": 107.04,
+      "entry_date": "2026-10-09",
+      "trade_id": 7537
+    },
+    "AMD": {
+      "qty": 1.3358,
+      "entry_price": 620.03,
+      "entry_date": "2026-10-09",
+      "trade_id": 7538
+    },
+    "HPE": {
+      "qty": 11.6739,
+      "entry_price": 71.571434,
+      "entry_date": "2026-10-09",
+      "trade_id": 7539
+    },
+    "STX": {
+      "qty": 1.08,
+      "entry_price": 775.0,
+      "entry_date": "2026-10-09",
+      "trade_id": 7540
+    },
+    "ARM": {
+      "qty": 3.0396,
+      "entry_price": 275.15658,
+      "entry_date": "2026-10-09",
+      "trade_id": 7541
+    },
+    "WDC": {
+      "qty": 2.1734,
+      "entry_price": 392.973803,
+      "entry_date": "2026-10-09",
+      "trade_id": 7542
+    },
+    "AMAT": {
+      "qty": 1.6077,
+      "entry_price": 518.04,
+      "entry_date": "2026-10-09",
+      "trade_id": 7543
+    },
+    "CBRS": {
+      "qty": 5.2037,
+      "entry_price": 165.872313,
+      "entry_date": "2026-10-09",
+      "trade_id": 7544
+    }
+  }
+}

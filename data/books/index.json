@@ -1,0 +1,15 @@
+{
+  "name": "index",
+  "cash": 0.42811309280000387,
+  "deposited": 2000.0,
+  "created": "2026-09-28",
+  "last_run": "2026-10-15",
+  "positions": {
+    "SPY": {
+      "qty": 2.6064,
+      "entry_price": 767.177673,
+      "entry_date": "2026-09-28",
+      "trade_id": 7520
+    }
+  }
+}

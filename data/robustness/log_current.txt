@@ -1,0 +1,14 @@
+[current] 20 symbols, 685 sessions 2024-01-03 -> 2026-09-25
+  50/685 sessions | trades 329 | equity $460.40
+  100/685 sessions | trades 531 | equity $444.95
+  150/685 sessions | trades 842 | equity $414.29
+  200/685 sessions | trades 1105 | equity $394.69
+  250/685 sessions | trades 1458 | equity $390.53
+  300/685 sessions | trades 1648 | equity $372.84
+  350/685 sessions | trades 1854 | equity $373.15
+  400/685 sessions | trades 2259 | equity $359.43
+  450/685 sessions | trades 2636 | equity $328.95
+  500/685 sessions | trades 2884 | equity $316.69
+  550/685 sessions | trades 2987 | equity $308.42
+  cumulative kill switch tripped — stopped on 2026-04-27
+[current] 3101 trades -> data\robustness\trades_current.csv

@@ -1,0 +1,347 @@
+{
+  "in_sample": "2016-01-04 -> 2023-07-05",
+  "1_day_profile": {
+    "days": 1887,
+    "mean_pct": 0.055,
+    "stdev_pct": 1.16,
+    "up_days_pct": 54.4,
+    "days_beyond_2pct": 136,
+    "days_beyond_3pct": 46,
+    "normal_would_expect_beyond_3pct": 18.3,
+    "lag1_autocorr": -0.134,
+    "best_10_days_share_of_total_return": "149.5% total; 45.1% without the 10 best days"
+  },
+  "2_day_of_week": {
+    "Mon": {
+      "n": 349,
+      "mean_pct": 0.039,
+      "up_pct": 56.7,
+      "t": 0.57
+    },
+    "Tue": {
+      "n": 388,
+      "mean_pct": 0.074,
+      "up_pct": 51.3,
+      "t": 1.31
+    },
+    "Wed": {
+      "n": 388,
+      "mean_pct": 0.067,
+      "up_pct": 56.4,
+      "t": 1.15
+    },
+    "Thu": {
+      "n": 383,
+      "mean_pct": 0.042,
+      "up_pct": 54.8,
+      "t": 0.72
+    },
+    "Fri": {
+      "n": 379,
+      "mean_pct": 0.052,
+      "up_pct": 53.0,
+      "t": 0.9
+    }
+  },
+  "3_turn_of_month": {
+    "last-3 (day -4)": {
+      "n": 90,
+      "mean_pct": 0.186,
+      "up_pct": 57.8,
+      "t": 1.4
+    },
+    "last-2 (day -3)": {
+      "n": 90,
+      "mean_pct": 0.001,
+      "up_pct": 46.7,
+      "t": 0.01
+    },
+    "last-1 (day -2)": {
+      "n": 90,
+      "mean_pct": 0.247,
+      "up_pct": 60.0,
+      "t": 2.1
+    },
+    "last day of month": {
+      "n": 90,
+      "mean_pct": -0.047,
+      "up_pct": 43.3,
+      "t": -0.45
+    },
+    "day +1 of new month": {
+      "n": 90,
+      "mean_pct": 0.226,
+      "up_pct": 64.4,
+      "t": 1.96
+    },
+    "day +2 of new month": {
+      "n": 91,
+      "mean_pct": 0.088,
+      "up_pct": 59.3,
+      "t": 0.76
+    },
+    "day +3 of new month": {
+      "n": 90,
+      "mean_pct": 0.061,
+      "up_pct": 52.2,
+      "t": 0.46
+    },
+    "day +4 of new month": {
+      "n": 90,
+      "mean_pct": 0.185,
+      "up_pct": 62.2,
+      "t": 1.45
+    },
+    "all other days": {
+      "n": 1166,
+      "mean_pct": 0.016,
+      "up_pct": 53.6,
+      "t": 0.47
+    }
+  },
+  "4_overnight_vs_intraday": {
+    "overnight (close->open)": {
+      "n": 1887,
+      "mean_pct": 0.029,
+      "up_pct": 55.9,
+      "t": 1.67
+    },
+    "intraday (open->close)": {
+      "n": 1888,
+      "mean_pct": 0.026,
+      "up_pct": 54.1,
+      "t": 1.31
+    },
+    "overnight_cum": "+64.6%",
+    "intraday_cum": "+52.0%"
+  },
+  "5_vix_regimes": {
+    "VIX 0-15 \u00b7 next day": {
+      "n": 687,
+      "mean_pct": 0.063,
+      "up_pct": 55.7,
+      "t": 3.4
+    },
+    "VIX 0-15 \u00b7 next 21d": {
+      "n": 667,
+      "mean_pct": 0.69,
+      "up_pct": 69.7,
+      "t": 4.86
+    },
+    "VIX 15-20 \u00b7 next day": {
+      "n": 510,
+      "mean_pct": -0.002,
+      "up_pct": 53.7,
+      "t": -0.04
+    },
+    "VIX 15-20 \u00b7 next 21d": {
+      "n": 509,
+      "mean_pct": 0.754,
+      "up_pct": 69.4,
+      "t": 3.77
+    },
+    "VIX 20-30 \u00b7 next day": {
+      "n": 551,
+      "mean_pct": 0.053,
+      "up_pct": 53.4,
+      "t": 0.95
+    },
+    "VIX 20-30 \u00b7 next 21d": {
+      "n": 551,
+      "mean_pct": 1.195,
+      "up_pct": 65.2,
+      "t": 5.55
+    },
+    "VIX 30+ \u00b7 next day": {
+      "n": 139,
+      "mean_pct": 0.232,
+      "up_pct": 54.7,
+      "t": 1.02
+    },
+    "VIX 30+ \u00b7 next 21d": {
+      "n": 139,
+      "mean_pct": 5.128,
+      "up_pct": 85.6,
+      "t": 9.03
+    }
+  },
+  "6_after_big_drops": {
+    "day after <= -2%": {
+      "n": 79,
+      "mean_pct": 0.482,
+      "up_pct": 59.5,
+      "t": 1.81
+    },
+    "next 21d after <= -2%": {
+      "n": 79,
+      "mean_pct": 2.331,
+      "up_pct": 69.6,
+      "t": 2.41
+    },
+    "day after <= -3%": {
+      "n": 29,
+      "mean_pct": 0.298,
+      "up_pct": 51.7,
+      "t": 0.62
+    },
+    "next 21d after <= -3%": {
+      "n": 29,
+      "mean_pct": 0.888,
+      "up_pct": 58.6,
+      "t": 0.42
+    },
+    "any day \u00b7 next day": {
+      "n": 1887,
+      "mean_pct": 0.055,
+      "up_pct": 54.4,
+      "t": 2.07
+    },
+    "any day \u00b7 next 21d": {
+      "n": 1867,
+      "mean_pct": 1.184,
+      "up_pct": 69.4,
+      "t": 10.78
+    }
+  },
+  "7_trend_200d": {
+    "above 200d \u00b7 next day": {
+      "n": 1343,
+      "mean_pct": 0.052,
+      "up_pct": 55.8,
+      "t": 2.24
+    },
+    "below 200d \u00b7 next day": {
+      "n": 345,
+      "mean_pct": 0.079,
+      "up_pct": 49.9,
+      "t": 0.72
+    },
+    "above 200d \u00b7 next 21d": {
+      "n": 1322,
+      "mean_pct": 1.005,
+      "up_pct": 71.7,
+      "t": 8.52
+    },
+    "below 200d \u00b7 next 21d": {
+      "n": 345,
+      "mean_pct": 1.803,
+      "up_pct": 61.7,
+      "t": 4.92
+    },
+    "annualized_vol_pct": {
+      "above": 13.5,
+      "below": 32.3
+    }
+  },
+  "8_intraday_shape": {
+    "09:30": {
+      "n": 1874,
+      "mean_pct": 0.011,
+      "up_pct": 50.9,
+      "t": 1.48,
+      "avg_abs_move_pct": 0.215
+    },
+    "10:00": {
+      "n": 1874,
+      "mean_pct": 0.002,
+      "up_pct": 52.8,
+      "t": 0.39,
+      "avg_abs_move_pct": 0.185
+    },
+    "10:30": {
+      "n": 1874,
+      "mean_pct": -0.008,
+      "up_pct": 50.6,
+      "t": -1.35,
+      "avg_abs_move_pct": 0.168
+    },
+    "11:00": {
+      "n": 1874,
+      "mean_pct": 0.009,
+      "up_pct": 55.2,
+      "t": 1.64,
+      "avg_abs_move_pct": 0.152
+    },
+    "11:30": {
+      "n": 1874,
+      "mean_pct": 0.006,
+      "up_pct": 53.7,
+      "t": 1.28,
+      "avg_abs_move_pct": 0.137
+    },
+    "12:00": {
+      "n": 1874,
+      "mean_pct": -0.002,
+      "up_pct": 50.4,
+      "t": -0.35,
+      "avg_abs_move_pct": 0.128
+    },
+    "12:30": {
+      "n": 1874,
+      "mean_pct": 0.007,
+      "up_pct": 53.6,
+      "t": 1.69,
+      "avg_abs_move_pct": 0.115
+    },
+    "13:00": {
+      "n": 1874,
+      "mean_pct": -0.008,
+      "up_pct": 49.7,
+      "t": -2.03,
+      "avg_abs_move_pct": 0.115
+    },
+    "13:30": {
+      "n": 1874,
+      "mean_pct": -0.001,
+      "up_pct": 51.9,
+      "t": -0.31,
+      "avg_abs_move_pct": 0.118
+    },
+    "14:00": {
+      "n": 1874,
+      "mean_pct": 0.001,
+      "up_pct": 52.5,
+      "t": 0.25,
+      "avg_abs_move_pct": 0.137
+    },
+    "14:30": {
+      "n": 1874,
+      "mean_pct": 0.01,
+      "up_pct": 53.8,
+      "t": 1.86,
+      "avg_abs_move_pct": 0.135
+    },
+    "15:00": {
+      "n": 1874,
+      "mean_pct": 0.004,
+      "up_pct": 52.3,
+      "t": 0.79,
+      "avg_abs_move_pct": 0.138
+    },
+    "15:30": {
+      "n": 1874,
+      "mean_pct": -0.006,
+      "up_pct": 49.1,
+      "t": -0.73,
+      "avg_abs_move_pct": 0.193
+    }
+  },
+  "9_costs_vs_moves": {
+    "30 minutes": {
+      "avg_abs_move_pct": 0.149,
+      "round_trip_cost_share_pct": 67.2
+    },
+    "1 day": {
+      "avg_abs_move_pct": 0.756,
+      "round_trip_cost_share_pct": 13.2
+    },
+    "1 week": {
+      "avg_abs_move_pct": 1.664,
+      "round_trip_cost_share_pct": 6.0
+    },
+    "1 month": {
+      "avg_abs_move_pct": 3.599,
+      "round_trip_cost_share_pct": 2.8
+    }
+  }
+}

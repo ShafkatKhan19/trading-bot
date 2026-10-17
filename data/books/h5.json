@@ -1,0 +1,69 @@
+{
+  "name": "h5",
+  "cash": 0.08272603420013525,
+  "deposited": 2000.0,
+  "created": "2026-09-28",
+  "last_run": "2026-10-15",
+  "positions": {
+    "OXY": {
+      "qty": 3.5627,
+      "entry_price": 55.875614,
+      "entry_date": "2026-10-01",
+      "trade_id": 7526
+    },
+    "ABT": {
+      "qty": 2.102,
+      "entry_price": 95.41,
+      "entry_date": "2026-10-02",
+      "trade_id": 7528
+    },
+    "WFC": {
+      "qty": 2.502,
+      "entry_price": 81.299984,
+      "entry_date": "2026-10-05",
+      "trade_id": 7529
+    },
+    "MSFT": {
+      "qty": 0.3792,
+      "entry_price": 527.84,
+      "entry_date": "2026-10-05",
+      "trade_id": 7530
+    },
+    "PG": {
+      "qty": 1.3473,
+      "entry_price": 148.76,
+      "entry_date": "2026-10-07",
+      "trade_id": 7531
+    },
+    "GOOGL": {
+      "qty": 0.5641,
+      "entry_price": 353.796,
+      "entry_date": "2026-10-08",
+      "trade_id": 7532
+    },
+    "CRM": {
+      "qty": 0.8556,
+      "entry_price": 239.464,
+      "entry_date": "2026-10-12",
+      "trade_id": 7545
+    },
+    "EXC": {
+      "qty": 4.7976,
+      "entry_price": 42.39,
+      "entry_date": "2026-10-13",
+      "trade_id": 7546
+    },
+    "BAC": {
+      "qty": 3.9393,
+      "entry_price": 51.44,
+      "entry_date": "2026-10-15",
+      "trade_id": 7549
+    },
+    "WMT": {
+      "qty": 1.4511,
+      "entry_price": 121.05,
+      "entry_date": "2026-10-15",
+      "trade_id": 7550
+    }
+  }
+}
