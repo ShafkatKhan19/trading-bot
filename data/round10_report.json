@@ -1,0 +1,133 @@
+{
+  "n_tests_cumulative": 41,
+  "SPY_BH": {
+    "oos": {
+      "cagr": 0.2062371088119368,
+      "sharpe": 1.3219093214146636,
+      "max_dd": 0.18754263088722148
+    }
+  },
+  "coverage": {
+    "gp_tickers": 58,
+    "assets_tickers": 80,
+    "div_tickers": 39,
+    "insider_tickers_in_filing_net": 87,
+    "insider_monthly_rows": 6426,
+    "insider_tickers_any_activity": 87,
+    "insider_filings_parsed": 90906,
+    "insider_filings_with_ps": 22778,
+    "insider_parse_failures": 4
+  },
+  "H36": {
+    "verdict": "FAIL",
+    "fails": [
+      "OOS excess CAGR -5.9% <= 0",
+      "excess-t -1.01 < 3.25",
+      "Sharpe 1.17 <= SPY 1.32"
+    ],
+    "oos": {
+      "cagr": 0.1470406581370487,
+      "sharpe": 1.1680607780790024,
+      "t_excess": -1.014650040271683,
+      "bar": 3.2457824894999576,
+      "max_dd": 0.14262156662855233,
+      "trades": 35
+    },
+    "is_": {
+      "cagr": 0.1839358378166429,
+      "sharpe": 1.042114160453441
+    },
+    "control": null,
+    "control_note": "not reported: pre-registered slow-turnover caveat (round 8/9)",
+    "eligible_names_per_month": {
+      "min": 34,
+      "median": 57,
+      "max": 57
+    }
+  },
+  "H37": {
+    "verdict": "FAIL",
+    "fails": [
+      "OOS excess CAGR -2.4% <= 0",
+      "excess-t -0.38 < 3.25"
+    ],
+    "oos": {
+      "cagr": 0.1826971016222192,
+      "sharpe": 1.4614020412786002,
+      "t_excess": -0.376628317034228,
+      "bar": 3.2457824894999576,
+      "max_dd": 0.13064424751241954,
+      "trades": 197
+    },
+    "is_": {
+      "cagr": 0.17646566713784329,
+      "sharpe": 1.0028204038343929
+    },
+    "control": null,
+    "control_note": "not reported: pre-registered slow-turnover caveat (round 8/9)",
+    "eligible_names_per_month": {
+      "min": 77,
+      "median": 79,
+      "max": 80
+    }
+  },
+  "H38": {
+    "verdict": "FAIL",
+    "fails": [
+      "OOS excess CAGR -5.1% <= 0",
+      "excess-t -0.81 < 3.25",
+      "Sharpe 1.22 <= SPY 1.32"
+    ],
+    "oos": {
+      "cagr": 0.15492993575554914,
+      "sharpe": 1.2179797539739947,
+      "t_excess": -0.8122833878270139,
+      "bar": 3.2457824894999576,
+      "max_dd": 0.15497785416143192,
+      "trades": 119
+    },
+    "is_": {
+      "cagr": 0.14285404020675108,
+      "sharpe": 0.7937442823706718
+    },
+    "control": null,
+    "control_note": "not reported: pre-registered slow-turnover caveat (round 8/9)",
+    "eligible_names_per_month": {
+      "min": 65,
+      "median": 69,
+      "max": 74
+    }
+  },
+  "H39": {
+    "verdict": "FAIL",
+    "fails": [
+      "OOS excess CAGR -5.3% <= 0",
+      "excess-t -1.30 < 3.25",
+      "Sharpe 1.16 <= SPY 1.32"
+    ],
+    "oos": {
+      "cagr": 0.1533570398936306,
+      "sharpe": 1.1628520707487455,
+      "t_excess": -1.2967239809781714,
+      "bar": 3.2457824894999576,
+      "max_dd": 0.17211324324958538,
+      "trades": 210
+    },
+    "is_": {
+      "cagr": 0.15421629549108462,
+      "sharpe": 0.8515635303295856
+    },
+    "control": null,
+    "control_note": "not reported: pre-registered slow-turnover caveat (round 8/9)",
+    "positive_score_names_per_month": {
+      "min": 0,
+      "median": 5,
+      "max": 11
+    },
+    "fill_slots_per_month": {
+      "months_with_fill": 90,
+      "total_months": 90,
+      "max_fill": 26
+    }
+  }
+}
