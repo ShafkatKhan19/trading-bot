@@ -1,0 +1,797 @@
+{
+  "n_tests_cumulative": 48,
+  "bar_registered": 3.31,
+  "H44_leg_reconstruction": {
+    "H29": {
+      "reconstructed": {
+        "cagr": 0.23685642640883908,
+        "sharpe": 1.523713985937858,
+        "t_excess": 0.4318240368882324
+      },
+      "max_abs_delta": 0.0
+    },
+    "H43": {
+      "reconstructed": {
+        "cagr": 0.20319539131492736,
+        "sharpe": 0.9156965401045416,
+        "t_excess": 0.9008746094458536
+      },
+      "max_abs_delta": 0.0
+    },
+    "method": "legs run at native $2,000 through the original round-8 / round-11 code paths, halved and summed; engines are exactly linear in starting capital (fractional shares, proportional costs). Benchmark legs halved identically."
+  },
+  "BLEND_BH": {
+    "oos": {
+      "cagr": 0.186354066147286,
+      "sharpe": 1.1180761708644902,
+      "max_dd": 0.21607631087915996
+    }
+  },
+  "H44": {
+    "verdict": "FAIL",
+    "fails": [
+      "excess-t 0.76 < 3.29"
+    ],
+    "oos": {
+      "cagr": 0.23405048354280233,
+      "sharpe": 1.2708368689586578,
+      "t_excess": 0.7644283730952364,
+      "bar": 3.290986782277802,
+      "max_dd": 0.20962237308375595
+    },
+    "is_": {
+      "cagr": 0.1631844291946205,
+      "sharpe": 0.7956016161847705
+    },
+    "control": null,
+    "control_note": "not reported: combination of two already-tested books (H44) / single-asset timing and defensive books follow the rounds 7-11 no-control convention"
+  },
+  "data": {
+    "etf_start": "2015-06-01",
+    "etf_end": "2026-10-19",
+    "fred_start": "1976-06-01",
+    "fred_end": "2026-10-20",
+    "fred_obs": 12593
+  },
+  "SPY_BH_ETF": {
+    "oos": {
+      "cagr": 0.19951953748780982,
+      "sharpe": 1.2916946590729657,
+      "max_dd": 0.18755240506370233
+    }
+  },
+  "H45": {
+    "verdict": "FAIL",
+    "fails": [
+      "OOS excess CAGR -8.7% <= 0",
+      "excess-t -1.18 < 3.29",
+      "Sharpe 0.73 <= SPY 1.29"
+    ],
+    "oos": {
+      "cagr": 0.1125701386712501,
+      "sharpe": 0.7349064711761142,
+      "t_excess": -1.1779416705168284,
+      "bar": 3.2907537471292003,
+      "max_dd": 0.18876901544509764
+    },
+    "is_": {
+      "cagr": 0.099889837327507,
+      "sharpe": 0.6032957077299521
+    },
+    "control": null,
+    "control_note": "not reported: combination of two already-tested books (H44) / single-asset timing and defensive books follow the rounds 7-11 no-control convention",
+    "months_total": 136,
+    "months_tlt": 25,
+    "switches": 2,
+    "trades": 2,
+    "regime": [
+      {
+        "signal_month_end": "2015-06-30",
+        "lagged_spread": 1.51,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2015-07-31",
+        "lagged_spread": 1.71,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2015-08-31",
+        "lagged_spread": 1.53,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2015-09-30",
+        "lagged_spread": 1.47,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2015-10-30",
+        "lagged_spread": 1.42,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2015-11-30",
+        "lagged_spread": 1.41,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2015-12-31",
+        "lagged_spread": 1.27,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2016-01-29",
+        "lagged_spread": 1.21,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2016-02-29",
+        "lagged_spread": 1.18,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2016-03-31",
+        "lagged_spread": 0.96,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2016-04-29",
+        "lagged_spread": 1.05,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2016-05-31",
+        "lagged_spread": 1.06,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2016-06-30",
+        "lagged_spread": 0.97,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2016-07-29",
+        "lagged_spread": 0.91,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2016-08-31",
+        "lagged_spread": 0.79,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2016-09-30",
+        "lagged_spread": 0.78,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2016-10-31",
+        "lagged_spread": 0.83,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2016-11-30",
+        "lagged_spread": 0.98,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2016-12-30",
+        "lagged_spread": 1.26,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2017-01-31",
+        "lagged_spread": 1.25,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2017-02-28",
+        "lagged_spread": 1.26,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2017-03-31",
+        "lagged_spread": 1.14,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2017-04-28",
+        "lagged_spread": 1.13,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2017-05-31",
+        "lagged_spread": 1.01,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2017-06-30",
+        "lagged_spread": 0.93,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2017-07-31",
+        "lagged_spread": 0.93,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2017-08-31",
+        "lagged_spread": 0.96,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2017-09-29",
+        "lagged_spread": 0.79,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2017-10-31",
+        "lagged_spread": 0.86,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2017-11-30",
+        "lagged_spread": 0.78,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2017-12-29",
+        "lagged_spread": 0.64,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2018-01-31",
+        "lagged_spread": 0.51,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2018-02-28",
+        "lagged_spread": 0.58,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2018-03-29",
+        "lagged_spread": 0.62,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2018-04-30",
+        "lagged_spread": 0.47,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2018-05-31",
+        "lagged_spread": 0.46,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2018-06-29",
+        "lagged_spread": 0.43,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2018-07-31",
+        "lagged_spread": 0.33,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2018-08-31",
+        "lagged_spread": 0.29,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2018-09-28",
+        "lagged_spread": 0.24,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2018-10-31",
+        "lagged_spread": 0.24,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2018-11-30",
+        "lagged_spread": 0.28,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2018-12-31",
+        "lagged_spread": 0.21,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2019-01-31",
+        "lagged_spread": 0.21,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2019-02-28",
+        "lagged_spread": 0.18,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2019-03-29",
+        "lagged_spread": 0.21,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2019-04-30",
+        "lagged_spread": 0.14,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2019-05-31",
+        "lagged_spread": 0.24,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2019-06-28",
+        "lagged_spread": 0.19,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2019-07-31",
+        "lagged_spread": 0.25,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2019-08-30",
+        "lagged_spread": 0.13,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2019-09-30",
+        "lagged_spread": 0.0,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2019-10-31",
+        "lagged_spread": 0.05,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2019-11-29",
+        "lagged_spread": 0.17,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2019-12-31",
+        "lagged_spread": 0.17,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2020-01-31",
+        "lagged_spread": 0.34,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2020-02-28",
+        "lagged_spread": 0.18,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2020-03-31",
+        "lagged_spread": 0.27,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2020-04-30",
+        "lagged_spread": 0.47,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2020-05-29",
+        "lagged_spread": 0.44,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2020-06-30",
+        "lagged_spread": 0.49,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2020-07-31",
+        "lagged_spread": 0.5,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2020-08-31",
+        "lagged_spread": 0.44,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2020-09-30",
+        "lagged_spread": 0.58,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2020-10-30",
+        "lagged_spread": 0.56,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2020-11-30",
+        "lagged_spread": 0.74,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2020-12-31",
+        "lagged_spread": 0.68,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2021-01-29",
+        "lagged_spread": 0.8,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2021-02-26",
+        "lagged_spread": 1.0,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2021-03-31",
+        "lagged_spread": 1.3,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2021-04-30",
+        "lagged_spread": 1.58,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2021-05-28",
+        "lagged_spread": 1.49,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2021-06-30",
+        "lagged_spread": 1.44,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2021-07-30",
+        "lagged_spread": 1.2,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2021-08-31",
+        "lagged_spread": 1.05,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2021-09-30",
+        "lagged_spread": 1.1,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2021-10-29",
+        "lagged_spread": 1.24,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2021-11-30",
+        "lagged_spread": 1.07,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2021-12-31",
+        "lagged_spread": 0.91,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2022-01-31",
+        "lagged_spread": 0.79,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2022-02-28",
+        "lagged_spread": 0.61,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2022-03-31",
+        "lagged_spread": 0.39,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2022-04-29",
+        "lagged_spread": 0.04,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2022-05-31",
+        "lagged_spread": 0.19,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2022-06-30",
+        "lagged_spread": 0.32,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2022-07-29",
+        "lagged_spread": 0.06,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2022-08-31",
+        "lagged_spread": -0.22,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2022-09-30",
+        "lagged_spread": -0.3,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2022-10-31",
+        "lagged_spread": -0.39,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2022-11-30",
+        "lagged_spread": -0.41,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2022-12-30",
+        "lagged_spread": -0.7,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2023-01-31",
+        "lagged_spread": -0.53,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2023-02-28",
+        "lagged_spread": -0.69,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2023-03-31",
+        "lagged_spread": -0.89,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2023-04-28",
+        "lagged_spread": -0.58,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2023-05-31",
+        "lagged_spread": -0.6,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2023-06-30",
+        "lagged_spread": -0.76,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2023-07-31",
+        "lagged_spread": -1.06,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2023-08-31",
+        "lagged_spread": -0.91,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2023-09-29",
+        "lagged_spread": -0.76,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2023-10-31",
+        "lagged_spread": -0.44,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2023-11-30",
+        "lagged_spread": -0.19,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2023-12-29",
+        "lagged_spread": -0.36,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2024-01-31",
+        "lagged_spread": -0.35,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2024-02-29",
+        "lagged_spread": -0.28,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2024-03-28",
+        "lagged_spread": -0.39,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2024-04-30",
+        "lagged_spread": -0.39,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2024-05-31",
+        "lagged_spread": -0.35,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2024-06-28",
+        "lagged_spread": -0.38,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2024-07-31",
+        "lagged_spread": -0.35,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2024-08-30",
+        "lagged_spread": -0.2,
+        "hold": "TLT"
+      },
+      {
+        "signal_month_end": "2024-09-30",
+        "lagged_spread": 0.0,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2024-10-31",
+        "lagged_spread": 0.15,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2024-11-29",
+        "lagged_spread": 0.12,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2024-12-31",
+        "lagged_spread": 0.05,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2025-01-31",
+        "lagged_spread": 0.33,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2025-02-28",
+        "lagged_spread": 0.36,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2025-03-31",
+        "lagged_spread": 0.25,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2025-04-30",
+        "lagged_spread": 0.34,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2025-05-30",
+        "lagged_spread": 0.57,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2025-06-30",
+        "lagged_spread": 0.52,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2025-07-31",
+        "lagged_spread": 0.52,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2025-08-29",
+        "lagged_spread": 0.43,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2025-09-30",
+        "lagged_spread": 0.64,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2025-10-31",
+        "lagged_spread": 0.56,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2025-11-28",
+        "lagged_spread": 0.51,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2025-12-31",
+        "lagged_spread": 0.55,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2026-01-30",
+        "lagged_spread": 0.71,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2026-02-27",
+        "lagged_spread": 0.74,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2026-03-31",
+        "lagged_spread": 0.59,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2026-04-30",
+        "lagged_spread": 0.51,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2026-05-29",
+        "lagged_spread": 0.52,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2026-06-30",
+        "lagged_spread": 0.47,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2026-07-31",
+        "lagged_spread": 0.3,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2026-08-31",
+        "lagged_spread": 0.47,
+        "hold": "SPY"
+      },
+      {
+        "signal_month_end": "2026-09-30",
+        "lagged_spread": 0.41,
+        "hold": "SPY"
+      }
+    ]
+  },
+  "H46": {
+    "verdict": "FAIL",
+    "fails": [
+      "OOS excess CAGR -6.5% <= 0",
+      "excess-t -1.00 < 3.29"
+    ],
+    "oos": {
+      "cagr": 0.13411868389678538,
+      "sharpe": 1.3373565135433825,
+      "t_excess": -0.9950023002764562,
+      "bar": 3.2907537471292003,
+      "max_dd": 0.0987521329631369
+    },
+    "is_": {
+      "cagr": 0.07024727600849934,
+      "sharpe": 0.794111845802351
+    },
+    "control": null,
+    "control_note": "not reported: combination of two already-tested books (H44) / single-asset timing and defensive books follow the rounds 7-11 no-control convention",
+    "rebalances": 134,
+    "mean_weights": {
+      "SPY": 0.3271089631236578,
+      "TLT": 0.3498656840432938,
+      "GLD": 0.3230253528330484
+    },
+    "trades": 0
+  }
+}
