@@ -18,6 +18,11 @@
 #             (config.PICKS_SYMBOLS): equal-weight buy-and-hold, never sells
 #             (PREREGISTRATION_2026-10-09_picks.md).
 #
+#   "h10"   — PAPER-ONLY forward test of round-3 cross-sectional momentum
+#             (top-17 6-1, monthly rebalance; the one real signal in 13
+#             backtests). Grade date 2027-04-17
+#             (PREREGISTRATION_2026-10-17_h10_forward.md).
+#
 #  Each book has its own virtual cash and share ledger in data/books/*.json
 #  and only ever sells shares it bought, so both can hold SPY in one account.
 #
@@ -307,6 +312,45 @@ def run_h5(client, today: date):
     return book
 
 
+def run_h10(client, closes, today: date):
+    """PAPER-ONLY forward test of H10 (PREREGISTRATION_2026-10-17_h10_forward.md).
+
+    First trading session of each month: rank L by 6-month return skipping
+    the most recent month (completed closes only), hold the top 17 equal
+    weight. On other sessions, hold. Grade date 2027-04-17.
+    """
+    if config.TRADING_MODE == "live":
+        logger.info("[h10] paper-only forward test — skipped in live mode")
+        return None
+    book = load_book("h10", config.H10_PAPER_CAPITAL)
+    last_run = book["last_run"]
+    new_month = last_run is None or date.fromisoformat(last_run).month != today.month
+    if not new_month and book["positions"]:
+        book["last_run"] = today.isoformat()
+        save_book(book)
+        return book
+    cols = [s for s in r2.L if s in closes.columns]
+    if len(closes) < 160 or len(cols) < 50:
+        logger.warning(f"[h10] insufficient data ({len(closes)} bars, {len(cols)} symbols) — skipping rebalance")
+        book["last_run"] = today.isoformat()
+        save_book(book)
+        return book
+    last = closes.index[-1]
+    mom = closes[cols].iloc[-22] / closes[cols].iloc[-148] - 1   # 6m return, skip most recent month
+    top = [s for s in mom.sort_values(ascending=False).index[:17]]
+    equity = book_equity(book, closes.loc[last].to_dict())
+    for s in list(book["positions"]):
+        if s not in set(top):
+            sell(client, book, s, "h10 monthly rebalance: out of top 17")
+    for s in top:
+        if s not in book["positions"]:
+            buy(client, book, s, equity / 17, "h10 entry: top-17 6-1 momentum")
+    book["last_run"] = today.isoformat()
+    save_book(book)
+    logger.info(f"[h10] rebalanced for {today.strftime('%Y-%m')}: holding {sorted(top) or '-'}")
+    return book
+
+
 def run_picks(client, today: date):
     if config.TRADING_MODE == "live":
         logger.info("[picks] paper-only forward test — skipped in live mode")
@@ -351,7 +395,8 @@ def log_equity(client, books: list):
 
 def run_session(client):
     today = datetime.now(ET).date()
-    symbols = sorted(set(research.UNIVERSE) | {config.INDEX_SYMBOL})
+    symbols = sorted(set(research.UNIVERSE) | {config.INDEX_SYMBOL}
+                     | (set(r2.L) if "h10" in config.DAILY_BOOKS else set()))
     closes = completed_daily_closes(client, symbols)
     if closes.empty or len(closes) < 205:
         logger.error(f"Only {len(closes)} daily bars — need 205; skipping today")
@@ -359,7 +404,8 @@ def run_session(client):
     books = [run_index(client, closes, today) if "index" in config.DAILY_BOOKS else None,
              run_h1(client, closes, today) if "h1" in config.DAILY_BOOKS else None,
              run_h5(client, today) if "h5" in config.DAILY_BOOKS else None,
-             run_picks(client, today) if "picks" in config.DAILY_BOOKS else None]
+             run_picks(client, today) if "picks" in config.DAILY_BOOKS else None,
+             run_h10(client, closes, today) if "h10" in config.DAILY_BOOKS else None]
     log_equity(client, books)
 
 
