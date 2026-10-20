@@ -1,0 +1,143 @@
+{
+  "IWM_BH": {
+    "oos": {
+      "cagr": 0.14135449745730844,
+      "sharpe": 0.7433844691606188,
+      "max_dd": 0.2750308972237526
+    }
+  },
+  "manifest": {
+    "n_listed": 603,
+    "n_ok": 602,
+    "n_failed": 1,
+    "benchmark_IWM": "ok"
+  },
+  "H15": {
+    "verdict": "FAIL",
+    "fails": [
+      "OOS ann. excess -5.0% <= 0",
+      "excess-t -0.22 < bar 3.05",
+      "Sharpe 0.44 <= IWM 0.74"
+    ],
+    "oos": {
+      "cagr": 0.09127959730427859,
+      "ann_excess": -0.050074900153029844,
+      "sharpe": 0.44218020475024283,
+      "t_excess": -0.22014752919455483,
+      "t_bar": 3.047530603403891,
+      "max_dd": 0.32350507425328084,
+      "exposure": 1.0,
+      "rebalances": 130
+    },
+    "is_": {
+      "cagr": 0.262763002674548,
+      "sharpe": 0.9380645097368665,
+      "max_dd": 0.5161217298922954
+    },
+    "control": {
+      "welch_t": 0.707942073191681,
+      "n_rebalances": 125,
+      "strat_gross_per_rebalance": 0.020637532656620515,
+      "ctrl_gross_per_rebalance": 0.013775928362745372,
+      "draws_per_rebalance": 200
+    }
+  },
+  "H16": {
+    "verdict": "FAIL",
+    "fails": [
+      "excess-t 0.31 < bar 3.05",
+      "Sharpe 0.64 <= IWM 0.74"
+    ],
+    "oos": {
+      "cagr": 0.1529701641691783,
+      "ann_excess": 0.011615666711869865,
+      "sharpe": 0.6415284715468017,
+      "t_excess": 0.31380056898673414,
+      "t_bar": 3.047530603403891,
+      "max_dd": 0.3408324758464399,
+      "exposure": 1.0,
+      "rebalances": 130
+    },
+    "is_": {
+      "cagr": 0.30140469371792267,
+      "sharpe": 0.8814293234255433,
+      "max_dd": 0.5172749075256092
+    }
+  },
+  "H17": {
+    "verdict": "FAIL",
+    "fails": [
+      "OOS ann. excess -6.4% <= 0",
+      "excess-t -0.98 < bar 3.05",
+      "Sharpe 0.51 <= IWM 0.74"
+    ],
+    "oos": {
+      "cagr": 0.07749869335125181,
+      "ann_excess": -0.06385580410605662,
+      "sharpe": 0.50757139427057,
+      "t_excess": -0.9843127161112508,
+      "t_bar": 3.047530603403891,
+      "max_dd": 0.18211838027975677,
+      "exposure": 1.0,
+      "rebalances": 130
+    },
+    "is_": {
+      "cagr": 0.06893200771600494,
+      "sharpe": 0.43574416831499735,
+      "max_dd": 0.38695694869816605
+    },
+    "control": {
+      "welch_t": -0.7814977491690552,
+      "n_rebalances": 125,
+      "strat_gross_per_rebalance": 0.008026589338808317,
+      "ctrl_gross_per_rebalance": 0.013775928362745372,
+      "draws_per_rebalance": 200
+    }
+  },
+  "H18": {
+    "verdict": "FAIL",
+    "fails": [
+      "OOS ann. excess -6.5% <= 0",
+      "excess-t -0.81 < bar 3.05",
+      "Sharpe 0.62 <= IWM 0.74"
+    ],
+    "oos": {
+      "cagr": 0.07606171202186274,
+      "ann_excess": -0.0652927854354457,
+      "sharpe": 0.618873619767508,
+      "t_excess": -0.8093584888745758,
+      "t_bar": 3.047530603403891,
+      "max_dd": 0.15965632618873965,
+      "exposure": 1.0,
+      "rebalances": 130
+    },
+    "is_": {
+      "cagr": 0.027546604813115882,
+      "sharpe": 0.24561474403763997,
+      "max_dd": 0.45011674537443574
+    }
+  },
+  "H19": {
+    "verdict": "FAIL",
+    "fails": [
+      "OOS ann. excess -4.5% <= 0",
+      "excess-t -0.73 < bar 3.05",
+      "Sharpe 0.66 <= IWM 0.74"
+    ],
+    "oos": {
+      "cagr": 0.09638187635513229,
+      "ann_excess": -0.04497262110217615,
+      "sharpe": 0.6636909936448279,
+      "t_excess": -0.7329366194373641,
+      "t_bar": 3.047530603403891,
+      "max_dd": 0.2270071522489783,
+      "exposure": 1.0,
+      "rebalances": 130
+    },
+    "is_": {
+      "cagr": 0.07565233886800105,
+      "sharpe": 0.47754087624376923,
+      "max_dd": 0.4514597992545237
+    }
+  }
+}
