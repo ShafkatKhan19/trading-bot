@@ -1,0 +1,145 @@
+{
+  "n_tests_cumulative": 45,
+  "coverage": {
+    "v2_tickers": 74,
+    "gp_tickers": 58,
+    "assets_tickers": 80,
+    "div_tickers": 39,
+    "sc_tickers": 554
+  },
+  "SPY_BH": {
+    "oos": {
+      "cagr": 0.2062371088119368,
+      "sharpe": 1.3219093214146636,
+      "max_dd": 0.18754263088722148
+    }
+  },
+  "H40": {
+    "verdict": "FAIL",
+    "fails": [
+      "OOS excess CAGR -4.3% <= 0",
+      "excess-t -0.71 < 3.27",
+      "Sharpe 1.30 <= SPY 1.32"
+    ],
+    "oos": {
+      "cagr": 0.16312999653188553,
+      "sharpe": 1.3024198800024054,
+      "t_excess": -0.7112915235182115,
+      "bar": 3.2725421439584257,
+      "max_dd": 0.1406410614134508,
+      "trades": 107
+    },
+    "is_": {
+      "cagr": 0.15265353869768306,
+      "sharpe": 0.9021493512056397
+    },
+    "control": null,
+    "control_note": "not reported: pre-registered slow-turnover caveat (rounds 8-10)",
+    "eligible_names_per_month": {
+      "min": 26,
+      "median": 48,
+      "max": 51
+    }
+  },
+  "H41": {
+    "verdict": "FAIL",
+    "fails": [
+      "OOS excess CAGR -1.3% <= 0",
+      "excess-t -0.20 < 3.27"
+    ],
+    "oos": {
+      "cagr": 0.19335653236661732,
+      "sharpe": 1.3915135474261113,
+      "t_excess": -0.19510953760178093,
+      "bar": 3.2725421439584257,
+      "max_dd": 0.14180702793277208,
+      "trades": 130
+    },
+    "is_": {
+      "cagr": 0.1720347840870715,
+      "sharpe": 0.9474046184677368
+    },
+    "control": null,
+    "control_note": "not reported: pre-registered slow-turnover caveat (rounds 8-10)",
+    "eligible_names_per_month": {
+      "min": 61,
+      "median": 68,
+      "max": 74
+    }
+  },
+  "H42": {
+    "verdict": "FAIL",
+    "fails": [
+      "OOS excess CAGR -2.8% <= 0",
+      "excess-t -0.53 < 3.27"
+    ],
+    "oos": {
+      "cagr": 0.17857995496446488,
+      "sharpe": 1.3313915750561054,
+      "t_excess": -0.5325365599076912,
+      "bar": 3.2725421439584257,
+      "max_dd": 0.15735946005643509,
+      "trades": 86
+    },
+    "is_": {
+      "cagr": 0.18456430505041488,
+      "sharpe": 1.0067838788750396
+    },
+    "control": null,
+    "control_note": "not reported: pre-registered slow-turnover caveat (rounds 8-10)",
+    "eligible_names_per_month": {
+      "min": 28,
+      "median": 44,
+      "max": 47
+    },
+    "leg_eligible_names_per_month": {
+      "earnings_yield": {
+        "min": 60,
+        "median": 63,
+        "max": 68
+      },
+      "gross_profitability": {
+        "min": 34,
+        "median": 57,
+        "max": 57
+      },
+      "shareholder_yield": {
+        "min": 65,
+        "median": 69,
+        "max": 74
+      }
+    }
+  },
+  "IWM_BH": {
+    "oos": {
+      "cagr": 0.14135449745730844,
+      "sharpe": 0.7433844691606188,
+      "max_dd": 0.2750308972237526
+    }
+  },
+  "H43": {
+    "verdict": "FAIL",
+    "fails": [
+      "excess-t 0.90 < 3.27"
+    ],
+    "oos": {
+      "cagr": 0.20319539131492736,
+      "sharpe": 0.9156965401045416,
+      "t_excess": 0.9008746094458536,
+      "bar": 3.272312774817115,
+      "max_dd": 0.2700552942674065,
+      "rebalances": 130
+    },
+    "is_": {
+      "cagr": 0.15241693167891524,
+      "sharpe": 0.6459325023320871
+    },
+    "control": {
+      "welch_t": 0.30545907085673424,
+      "n_rebalances": 125,
+      "strat_gross_per_rebalance": 0.016539486728284026,
+      "ctrl_gross_per_rebalance": 0.013789170208073761,
+      "method": "round-5 control: 200 random same-size draws per rebalance from the same fundamental-eligible pool, same entry/exit dates (horizon-matched)"
+    }
+  }
+}
