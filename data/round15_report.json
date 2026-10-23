@@ -1,0 +1,101 @@
+{
+  "n_tests_cumulative": 54,
+  "bar_registered": 3.33,
+  "coverage": {
+    "archives": [
+      "2026q2_form345.zip",
+      "2026q3_form345.zip",
+      "2015q4_form345.zip",
+      "2016q1_form345.zip",
+      "2016q2_form345.zip",
+      "2016q3_form345.zip",
+      "2016q4_form345.zip",
+      "2017q1_form345.zip",
+      "2017q2_form345.zip",
+      "2017q3_form345.zip",
+      "2017q4_form345.zip",
+      "2018q1_form345.zip",
+      "2018q2_form345.zip",
+      "2018q3_form345.zip",
+      "2018q4_form345.zip",
+      "2019q1_form345.zip",
+      "2019q2_form345.zip",
+      "2019q3_form345.zip",
+      "2019q4_form345.zip",
+      "2020q1_form345.zip",
+      "2020q2_form345.zip",
+      "2020q3_form345.zip",
+      "2020q4_form345.zip",
+      "2021q1_form345.zip",
+      "2021q2_form345.zip",
+      "2021q3_form345.zip",
+      "2021q4_form345.zip",
+      "2022q1_form345.zip",
+      "2022q2_form345.zip",
+      "2022q3_form345.zip",
+      "2022q4_form345.zip",
+      "2023q1_form345.zip",
+      "2023q2_form345.zip",
+      "2023q3_form345.zip",
+      "2023q4_form345.zip",
+      "2024q1_form345.zip",
+      "2024q2_form345.zip",
+      "2024q3_form345.zip",
+      "2024q4_form345.zip",
+      "2025q1_form345.zip",
+      "2025q2_form345.zip",
+      "2025q3_form345.zip",
+      "2025q4_form345.zip",
+      "2026q1_form345.zip"
+    ],
+    "n_archives": 44,
+    "form4_filings_total": 1984555,
+    "form4_bad_filing_dates": 0,
+    "lastdate": "2026-09-30",
+    "purchase_filings": 9855,
+    "purchase_tickers": 555,
+    "filing_date_min": "2015-10-01",
+    "filing_date_max": "2026-09-30",
+    "total_buy_usd": 16377870907.79
+  },
+  "IWM_BH": {
+    "oos": {
+      "cagr": 0.14135449745730844,
+      "sharpe": 0.7433844691606188,
+      "max_dd": 0.2750308972237526
+    }
+  },
+  "H52": {
+    "verdict": "FAIL",
+    "fails": [
+      "excess-t 0.73 < 3.32"
+    ],
+    "oos": {
+      "cagr": 0.19791368872254478,
+      "ann_excess": 0.05655919126523634,
+      "sharpe": 0.8526774973411959,
+      "t_excess": 0.7315095035474695,
+      "bar": 3.3241860703713337,
+      "max_dd": 0.2948088543215088,
+      "rebalances": 130
+    },
+    "is_": {
+      "cagr": 0.13886076529483615,
+      "sharpe": 0.5957188311104731
+    },
+    "control": {
+      "welch_t": 0.21373701076656537,
+      "n_rebalances": 125,
+      "strat_gross_per_rebalance": 0.016000220341442987,
+      "ctrl_gross_per_rebalance": 0.01407084033081641,
+      "method": "round-5 control: 200 random same-size draws per rebalance from the price-eligible Universe S pool, same entry/exit dates (horizon-matched)"
+    },
+    "cluster_eligible_per_month": {
+      "min": 0,
+      "median": 15.0,
+      "max": 87,
+      "months_below_topn": 133,
+      "months_total": 136
+    }
+  }
+}
