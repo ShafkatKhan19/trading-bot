@@ -1,0 +1,82 @@
+{
+  "n_tests_cumulative": 53,
+  "bar_registered": 3.35,
+  "SPY_BH": {
+    "oos": {
+      "cagr": 0.2062371088119368,
+      "sharpe": 1.3219093214146636,
+      "max_dd": 0.18754263088722148
+    }
+  },
+  "h50_coverage": {
+    "events": 683,
+    "tickers": 74
+  },
+  "h51_coverage": {
+    "events": 983,
+    "initiations": 138,
+    "tickers_with_events": 73,
+    "tickers_with_facts": 73
+  },
+  "H50": {
+    "verdict": "FAIL",
+    "fails": [
+      "OOS excess CAGR -2.1% <= 0",
+      "excess-t -0.41 < 3.32",
+      "Sharpe 1.29 <= SPY 1.32"
+    ],
+    "oos": {
+      "cagr": 0.18498733842045723,
+      "sharpe": 1.2933421640007428,
+      "t_excess": -0.41193748247769596,
+      "bar": 3.3191380446462624,
+      "max_dd": 0.18180926973584308,
+      "trades": 189
+    },
+    "is_": {
+      "cagr": 0.1489964542192621,
+      "sharpe": 0.8322031175237161
+    },
+    "control": {
+      "t": 6.053110330542521,
+      "n": 189,
+      "mean_real": 0.2174402085329822,
+      "mean_ctrl": 0.007072393404446582
+    },
+    "eligible_per_month": {
+      "min": 22,
+      "median": 29.0,
+      "max": 42
+    }
+  },
+  "H51": {
+    "verdict": "FAIL",
+    "fails": [
+      "OOS excess CAGR -1.3% <= 0",
+      "excess-t -0.27 < 3.32"
+    ],
+    "oos": {
+      "cagr": 0.19314683175732195,
+      "sharpe": 1.4220731536581517,
+      "t_excess": -0.2650510842117557,
+      "bar": 3.3191380446462624,
+      "max_dd": 0.15103290279806605,
+      "trades": 149
+    },
+    "is_": {
+      "cagr": 0.15663518350539962,
+      "sharpe": 0.8817770592571879
+    },
+    "control": {
+      "t": 4.289713441824105,
+      "n": 149,
+      "mean_real": 0.2677044708078299,
+      "mean_ctrl": 0.013923291465383129
+    },
+    "eligible_per_month": {
+      "min": 34,
+      "median": 49.0,
+      "max": 59
+    }
+  }
+}
